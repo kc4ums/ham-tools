@@ -137,6 +137,6 @@ while true; do
 
     [ "$once" -eq 1 ] && break
 
-    printf "  Refreshing in %ds — Ctrl+C to quit\n\n" "$interval"
-    sleep "$interval"
+    printf "  Refreshing in %ds — press any key to refresh, Ctrl+C to quit\n\n" "$interval"
+    read -r -n1 -t "$interval" _ 2>/dev/null || true
 done
