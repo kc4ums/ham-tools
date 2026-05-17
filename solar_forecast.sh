@@ -3,7 +3,25 @@
 
 URL="https://services.swpc.noaa.gov/text/27-day-outlook.txt"
 
+show_help() {
+    cat << 'EOF'
+
+  Usage: solar_forecast.sh [OPTIONS]
+
+  NOAA 27-day solar cycle outlook (SFI, A-index, K-index).
+  Refreshes every hour. Press any key to refresh immediately.
+
+  --days N      Rows to display  (default: 27)
+  --interval N  Refresh every N seconds  (default: 3600)
+  --once        Fetch once and exit
+  --no-color    Plain text output
+  --help        Show this help
+
+EOF
+}
+
 # ── Args ───────────────────────────────────────────────────────────────────
+[[ " $* " == *"--help"* ]] && { show_help; exit 0; }
 no_color=0
 interval=3600
 once=0

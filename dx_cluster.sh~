@@ -1,43 +1,28 @@
 #!/usr/bin/env bash
-# DX cluster spots — bash + curl/wget only, no other dependencies
-# Source: dxwatch.com JSON API (HTTPS, no telnet required)
+# DX cluster spots — bash + nc only, no other dependencies
+# Requires: nc (netcat) — apt install netcat / pacman -S openbsd-netcat
 
-URL="https://dxwatch.com/dxsd1/s.php?s=0&r=30"
-
-show_help() {
-    cat << 'EOF'
-
-  Usage: dx_cluster.sh [OPTIONS]
-
-  Live DX spots from dxwatch.com.
-  Refreshes every 5 minutes. Press any key to refresh immediately.
-
-  --band BAND   Filter by band: 160m 80m 40m 30m 20m 17m 15m 12m 10m 6m
-  --interval N  Refresh every N seconds  (default: 300)
-  --once        Fetch once and exit
-  --debug       Print raw API response and exit
-  --no-color    Plain text output
-  --help        Show this help
-
-EOF
-}
+CLUSTER_HOST="${DX_CLUSTER_HOST:-dxc.nc7j.com}"
+CLUSTER_PORT="${DX_CLUSTER_PORT:-7373}"
+CALLSIGN="${HAM_CALLSIGN:-NOCALL}"
+LISTEN_SECS=12
 
 # ── Args ───────────────────────────────────────────────────────────────────
-[[ " $* " == *"--help"* ]] && { show_help; exit 0; }
 filter_band=""
 no_color=0
 interval=300
 once=0
-debug=0
 
 for arg in "$@"; do [[ "$arg" == "--no-color" ]] && no_color=1; done
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --band)     filter_band="$2"; shift 2;;
-        --interval) interval="$2";    shift 2;;
-        --once)     once=1;           shift;;
-        --debug)    debug=1;          shift;;
+        --callsign) CALLSIGN="${2^^}"; shift 2;;
+        --cluster)  CLUSTER_HOST="$2"; shift 2;;
+        --band)     filter_band="$2";  shift 2;;
+        --listen)   LISTEN_SECS="$2";  shift 2;;
+        --interval) interval="$2";     shift 2;;
+        --once)     once=1;            shift;;
         --no-color) shift;;
         *)          shift;;
     esac
@@ -55,16 +40,6 @@ fi
 SEP="--------------------------------------------------------------------------"
 
 # ── Helpers ────────────────────────────────────────────────────────────────
-fetch_json() {
-    if command -v curl >/dev/null 2>&1; then
-        curl -sk --max-time 15 "$URL"
-    elif command -v wget >/dev/null 2>&1; then
-        wget -qO- --no-check-certificate --timeout=15 "$URL"
-    else
-        echo "Error: curl or wget is required" >&2; return 1
-    fi
-}
-
 get_band() {
     local f="${1%%.*}"
     [[ "$f" =~ ^[0-9]+$ ]] || { echo "Other"; return; }
@@ -83,66 +58,55 @@ get_band() {
     fi
 }
 
+# ── Preflight ──────────────────────────────────────────────────────────────
+if ! command -v nc >/dev/null 2>&1; then
+    printf "Error: nc (netcat) is required\n" >&2
+    printf "  Install: apt install netcat-openbsd  |  brew install netcat\n" >&2
+    exit 1
+fi
+
 # ── Main loop ──────────────────────────────────────────────────────────────
 trap 'printf "\n  Stopped.\n\n"; exit 0' INT TERM
 
 while true; do
     [ "$once" -eq 0 ] && clear
 
-    json=$(fetch_json)
+    printf "\n  %bDX Cluster Spots%b  — connecting to %s:%s ...\n" \
+        "$BOLD" "$RESET" "$CLUSTER_HOST" "$CLUSTER_PORT"
+
+    # Hold stdin open: wait for banner, login, collect spots, then close
+    raw=$(
+        { sleep 2; printf '%s\r\n' "$CALLSIGN"; sleep "$LISTEN_SECS"; } \
+            | nc "$CLUSTER_HOST" "$CLUSTER_PORT" 2>/dev/null \
+            | tr -d '\r' \
+            | grep "^DX de" \
+            | tail -50
+    )
     updated=$(date "+%H:%M:%S")
 
-    if [ -z "$json" ]; then
-        printf "\n  %bDX Spots%b  — fetch error at %s\n\n" "$BOLD" "$RESET" "$updated"
-        [ "$once" -eq 1 ] && exit 1
-        sleep "$interval"
-        continue
-    fi
-
-    # --debug: dump raw response so field names can be verified
-    if [ "$debug" -eq 1 ]; then
-        printf '%s\n' "$json"
-        exit 0
-    fi
-
-    # DXWatch format — spots live under "s", each entry is a numeric-keyed array:
-    #   "60552720": ["DXCALL", FREQ_KHZ, "SPOTTER", "COMMENT", "HHMMz DD Mon", age, band_id, flag]
-    json_flat=$(printf '%s' "$json" | tr -d '\n\r')
     rows=()
-
-    while IFS= read -r entry; do
-        arr=$(printf '%s' "$entry" | grep -oP '\[[^\]]+\]')
-        [ -z "$arr" ] && continue
-
-        # Quoted strings in array order: [0]=dxcall [1]=spotter [2]=comment [3]=time
-        dxcall=$(printf '%s' "$arr" | grep -oP '"[^"]*"' | sed -n '1p' | tr -d '"')
-        spotter=$(printf '%s' "$arr" | grep -oP '"[^"]*"' | sed -n '2p' | tr -d '"')
-        comment=$(printf '%s' "$arr" | grep -oP '"[^"]*"' | sed -n '3p' | tr -d '"')
-        timestr=$(printf '%s' "$arr" | grep -oP '"[^"]*"' | sed -n '4p' | tr -d '"')
-
-        # Frequency is the bare number right after the first quoted string
-        freq=$(printf '%s' "$arr" | grep -oP '^\["[^"]*",\K[0-9]+\.?[0-9]*')
-
-        # Unescape JSON \/ and HTML entities
-        dxcall=$(printf '%s' "$dxcall"  | sed 's/\\\//\//g')
-        spotter=$(printf '%s' "$spotter" | sed 's/\\\//\//g')
-        comment=$(printf '%s' "$comment" | sed 's/\\\//\//g; s/&amp;/\&/g; s/&lt;/</g; s/&gt;/>/g')
-
-        # Time: "1422z 17 May" → "1422z"
-        time="${timestr%% *}"
-
+    while IFS= read -r line; do
+        # DX de SPOTTER:  FREQ  DXCALL  COMMENT  TIME
+        parsed=$(awk '{
+            gsub(/:$/, "", $3)
+            dxcall=$5; freq=$4; spotter=$3; time=$NF
+            comment=""
+            for (i=6; i<NF; i++) comment = comment (i>6 ? " " : "") $i
+            printf "%s\t%s\t%s\t%s\t%s\n", dxcall, freq, spotter, comment, time
+        }' <<< "$line")
+        IFS=$'\t' read -r dxcall freq spotter comment time <<< "$parsed"
         band=$(get_band "$freq")
         [ -z "$dxcall" ] && continue
         [ -n "$filter_band" ] && [ "$band" != "$filter_band" ] && continue
-
         rows+=("${dxcall}	${freq}	${band}	${spotter}	${comment}	${time}")
-    done < <(printf '%s' "$json_flat" | grep -oP '"[0-9]+"\s*:\s*\[[^\]]+\]')
+    done <<< "$raw"
 
     count=${#rows[@]}
 
+    clear
     echo
-    printf "%b  DX Spots%b  — updated %s\n" "$BOLD" "$RESET" "$updated"
-    printf "  %d spot(s)  [dxwatch.com]\n" "$count"
+    printf "%b  DX Cluster Spots%b  — updated %s\n" "$BOLD" "$RESET" "$updated"
+    printf "  %d spot(s)  [%s  callsign: %s]\n" "$count" "$CLUSTER_HOST" "$CALLSIGN"
     echo "$SEP"
     printf "%b  %-12s %-10s %-6s %-12s %-20s %s%b\n" \
         "$BOLD" "DX Call" "Freq (kHz)" "Band" "Spotter" "Comment" "Time" "$RESET"
@@ -167,6 +131,6 @@ while true; do
 
     [ "$once" -eq 1 ] && break
 
-    printf "  Refreshing in %ds — press any key to refresh, Ctrl+C to quit\n\n" "$interval"
-    read -r -n1 -t "$interval" _ 2>/dev/null || true
+    printf "  Refreshing in %ds — Ctrl+C to quit\n\n" "$interval"
+    sleep "$interval"
 done

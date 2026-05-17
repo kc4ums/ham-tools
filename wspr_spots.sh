@@ -7,7 +7,29 @@ BASE_URL="https://db1.wspr.live/"
 LIMIT=30
 HOURS=1   # look-back window; increase with --hours if band is quiet
 
+show_help() {
+    cat << 'EOF'
+
+  Usage: wspr_spots.sh [OPTIONS]
+
+  WSPR propagation spots from db1.wspr.live.
+  Refreshes every 2 minutes (one TX cycle). Press any key to refresh immediately.
+
+  --band BAND   Filter by band: 160m 80m 40m 30m 20m 17m 15m 12m 10m 6m 2m
+  --call CALL   Filter by callsign (TX or RX)
+  --hours N     Look-back window in hours  (default: 1)
+  --limit N     Max spots to show  (default: 30)
+  --interval N  Refresh every N seconds  (default: 120)
+  --once        Fetch once and exit
+  --debug       Print raw API response and exit
+  --no-color    Plain text output
+  --help        Show this help
+
+EOF
+}
+
 # ── Args ───────────────────────────────────────────────────────────────────
+[[ " $* " == *"--help"* ]] && { show_help; exit 0; }
 filter_band=""
 filter_call=""
 no_color=0

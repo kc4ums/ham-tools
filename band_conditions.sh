@@ -3,6 +3,20 @@
 
 URL="https://www.hamqsl.com/solarxml.php"
 
+show_help() {
+    cat << 'EOF'
+
+  Usage: band_conditions.sh [--no-color] [--help]
+
+  Show current HF band conditions and solar data from hamqsl.com.
+
+  --no-color    Plain text output (auto-set when not a TTY)
+  --help        Show this help
+
+EOF
+}
+[[ " $* " == *"--help"* ]] && { show_help; exit 0; }
+
 # Fetch XML — try curl, fall back to wget
 if command -v curl >/dev/null 2>&1; then
     xml=$(curl -sk --max-time 15 "$URL") || { echo "Fetch failed" >&2; exit 1; }

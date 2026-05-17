@@ -4,7 +4,25 @@
 
 URL="https://www.contestcalendar.com/ftp/AllContests.ics"
 
+show_help() {
+    cat << 'EOF'
+
+  Usage: contest_calendar.sh [OPTIONS]
+
+  Upcoming ham radio contests from contestcalendar.com.
+  Refreshes every hour. Press any key to refresh immediately.
+
+  --days N      Look-ahead window in days  (default: 30)
+  --interval N  Refresh every N seconds  (default: 3600)
+  --once        Fetch once and exit
+  --no-color    Plain text output
+  --help        Show this help
+
+EOF
+}
+
 # ── Args ───────────────────────────────────────────────────────────────────
+[[ " $* " == *"--help"* ]] && { show_help; exit 0; }
 no_color=0
 interval=3600
 once=0

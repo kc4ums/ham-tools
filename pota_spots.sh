@@ -3,7 +3,26 @@
 
 URL="https://api.pota.app/spot/activator"
 
+show_help() {
+    cat << 'EOF'
+
+  Usage: pota_spots.sh [OPTIONS]
+
+  Live POTA activator spots from api.pota.app.
+  Refreshes every 5 minutes. Press any key to refresh immediately.
+
+  --mode MODE   Filter by mode: CW SSB FT8 FT4 FM
+  --band BAND   Filter by band: 160m 80m 40m 30m 20m 17m 15m 12m 10m
+  --interval N  Refresh every N seconds  (default: 300)
+  --once        Fetch once and exit
+  --no-color    Plain text output
+  --help        Show this help
+
+EOF
+}
+
 # ── Args ───────────────────────────────────────────────────────────────────
+[[ " $* " == *"--help"* ]] && { show_help; exit 0; }
 filter_mode=""
 filter_band=""
 no_color=0

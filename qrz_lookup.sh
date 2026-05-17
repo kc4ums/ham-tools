@@ -5,7 +5,25 @@
 
 QRZ_URL="https://xmldata.qrz.com/xml/current/"
 
+show_help() {
+    cat << 'EOF'
+
+  Usage: qrz_lookup.sh [--no-color] CALLSIGN
+
+  Look up a callsign via the QRZ XML API.
+
+  Credentials (required):
+    export QRZ_USER=yourcall
+    export QRZ_PASS=yourpassword
+
+  --no-color    Plain text output
+  --help        Show this help
+
+EOF
+}
+
 # ── Args ───────────────────────────────────────────────────────────────────
+[[ " $* " == *"--help"* ]] && { show_help; exit 0; }
 CALLSIGN=""
 no_color=0
 
