@@ -73,8 +73,9 @@ while true; do
     printf "  %b6%b  %-20s %s%s%s\n" "$BOLD" "$RESET" "Contest Calendar" "$GRAY" "upcoming ham radio contests"       "$RESET"
     printf "  %b7%b  %-20s %s%s%s\n" "$BOLD" "$RESET" "WSPR Spots"       "$GRAY" "propagation spots from wspr.live"  "$RESET"
     printf "  %b8%b  %-20s %s%s%s\n" "$BOLD" "$RESET" "Logbook"          "$GRAY" "local QSO logger"                  "$RESET"
+    printf "  %b9%b  %-20s %s%s%s\n" "$BOLD" "$RESET" "Weather"          "$GRAY" "current conditions & 10-day forecast" "$RESET"
     echo "$SEP"
-    printf "  [1-8  q=quit]: "
+    printf "  [1-9  q=quit]: "
     read -r -n1 choice; echo
 
     case "$choice" in
@@ -90,6 +91,7 @@ while true; do
         6) run "contest_calendar.sh";;
         7) run "wspr_spots.sh";;
         8) logbook_menu;;
+        9) run "weather.sh" ${HAM_WEATHER_LOC:+"$HAM_WEATHER_LOC"};;
         q|Q) clear; exit 0;;
     esac
 done

@@ -2,6 +2,8 @@
 # DX cluster spots — bash + curl/wget only, no other dependencies
 # Source: dxwatch.com JSON API (HTTPS, no telnet required)
 
+export LANG="${LANG:-en_US.UTF-8}"
+
 URL="https://dxwatch.com/dxsd1/s.php?s=0&r=30"
 
 show_help() {

@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # POTA active spots fetcher — bash + curl/wget only, no other dependencies
 
+export LANG="${LANG:-en_US.UTF-8}"
+
 URL="https://api.pota.app/spot/activator"
 
 show_help() {
