@@ -24,8 +24,11 @@ pause() {
     read -r -n1 -s
 }
 
-# Ignore Ctrl+C in the launcher itself — child scripts handle their own traps
-trap '' INT
+# Intercept Ctrl+C in the launcher so the menu survives it.
+# trap '' INT would set SIG_IGN which children inherit and can't override.
+# trap 'true' INT runs a no-op handler instead — children get SIG_DFL and
+# can set their own traps normally.
+trap 'true' INT
 
 # ── Logbook sub-menu ───────────────────────────────────────────────────────
 logbook_menu() {
