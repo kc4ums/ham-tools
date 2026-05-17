@@ -124,6 +124,10 @@ while true; do
     printf "%b  %-12s %-12s %s%b\n" "$BOLD" "Start" "End" "Contest" "$RESET"
     echo "$SEP"
 
+    this_week=$(date -d "+7 days" "+%Y%m%d" 2>/dev/null \
+             || date -v+7d       "+%Y%m%d" 2>/dev/null \
+             || echo "99991231")
+
     if [ -z "$filtered" ]; then
         printf "%b  No contests found in the next %d days.%b\n" "$GRAY" "$days" "$RESET"
     else
@@ -139,13 +143,10 @@ while true; do
                       || echo "$dtend")
             end_str=$(fmt_date "$dtend_disp")
 
-            # Color: this week = green, next week = yellow, further = plain
+            # Color: this week = green, today = yellow, further = plain
             clr=""
-            this_week=$(date -d "+7 days" "+%Y%m%d" 2>/dev/null \
-                     || date -v+7d       "+%Y%m%d" 2>/dev/null \
-                     || echo "99991231")
-            [[ "$dtstart" <= "$this_week" ]] && clr="$GREEN"
-            [[ "$dtstart" == "$today"     ]] && clr="$YELLOW"
+            [[ "$dtstart" < "$this_week" || "$dtstart" == "$this_week" ]] && clr="$GREEN"
+            [[ "$dtstart" == "$today"    ]] && clr="$YELLOW"
 
             printf "  %b%-12s %-12s %s%b\n" \
                 "$clr" "$start_str" "$end_str" "$summary" "$RESET"

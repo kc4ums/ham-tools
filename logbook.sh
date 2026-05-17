@@ -13,14 +13,18 @@ show_help() {
   Local ham radio QSO logger. Data stored in ~/.ham_log.tsv
   Override location with: export HAM_LOG=/path/to/log.tsv
 
-  (no args)         Show last 25 QSOs
-  --add             Interactively log a new QSO
-  --search CALL     Search log by callsign
-  --stats           Summary by band and mode
-  --tail N          Show last N QSOs  (default: 25)
-  --file PATH       Use a different log file
-  --no-color        Plain text output
-  --help            Show this help
+  (no args)              Show last 25 QSOs
+  --add                  Interactively log a new QSO
+  --search CALL          Search log by callsign
+  --stats                Summary by band and mode
+  --export-adif [FILE]   Export all QSOs to ADIF for LoTW/TQSL upload
+                         Default output: ~/.ham_log.adi
+  --tail N               Show last N QSOs  (default: 25)
+  --file PATH            Use a different log file
+  --no-color             Plain text output
+  --help                 Show this help
+
+  HAM_CALL  Your callsign for ADIF export  (e.g. export HAM_CALL=W1AW)
 
 EOF
 }
@@ -30,17 +34,22 @@ EOF
 
 action="view"
 search_term=""
+adif_file=""
 no_color=0
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --add)       action="add";              shift;;
-        --search)    action="search"; search_term="${2^^}"; shift 2;;
-        --stats)     action="stats";            shift;;
-        --tail)      VIEW_COUNT="$2";           shift 2;;
-        --file)      LOG_FILE="$2";             shift 2;;
-        --no-color)  no_color=1;                shift;;
-        *)           shift;;
+        --add)         action="add";              shift;;
+        --search)      action="search"; search_term="${2^^}"; shift 2;;
+        --stats)       action="stats";            shift;;
+        --export-adif)
+            action="export_adif"
+            [[ -n "${2:-}" && "${2:0:1}" != "-" ]] && { adif_file="$2"; shift; }
+            shift;;
+        --tail)        VIEW_COUNT="$2";           shift 2;;
+        --file)        LOG_FILE="$2";             shift 2;;
+        --no-color)    no_color=1;                shift;;
+        *)             shift;;
     esac
 done
 
@@ -261,10 +270,62 @@ do_stats() {
     echo
 }
 
+do_export_adif() {
+    ensure_log
+    local total
+    total=$(qso_count)
+
+    local station_call="${HAM_CALL:-}"
+    if [ -z "$station_call" ]; then
+        [ -t 0 ] || { printf "Error: set HAM_CALL env var for non-interactive export\n" >&2; exit 1; }
+        echo
+        read -e -r -p "  Your callsign (or set HAM_CALL): " station_call
+        station_call="${station_call^^}"
+    fi
+    [ -z "$station_call" ] && { printf "\nError: callsign required\n" >&2; exit 1; }
+
+    local outfile="${adif_file:-${HOME}/.ham_log.adi}"
+
+    adif_field() { local n="$1" v="$2"; printf '<%s:%d>%s' "$n" "${#v}" "$v"; }
+
+    {
+        printf '<ADIF_VER:5>3.1.4\n'
+        adif_field PROGRAMID "ham-tools"; printf '\n'
+        printf '<EOH>\n\n'
+
+        while IFS=$'\t' read -r date time call freq band mode rst_s rst_r notes; do
+            [ -z "$call" ] && continue
+            local qso_date="${date//-/}"
+            local freq_mhz=""
+            [ "${freq:-0}" != "0" ] && freq_mhz=$(awk "BEGIN{printf \"%.4f\",$freq/1000}")
+
+            local rec
+            rec="$(adif_field CALL          "$call")"
+            rec+=" $(adif_field QSO_DATE    "$qso_date")"
+            rec+=" $(adif_field TIME_ON     "$time")"
+            rec+=" $(adif_field BAND        "$band")"
+            [ -n "$freq_mhz" ] && rec+=" $(adif_field FREQ "$freq_mhz")"
+            rec+=" $(adif_field MODE        "$mode")"
+            rec+=" $(adif_field RST_SENT    "$rst_s")"
+            rec+=" $(adif_field RST_RCVD    "$rst_r")"
+            rec+=" $(adif_field STATION_CALLSIGN "$station_call")"
+            [ -n "$notes" ] && rec+=" $(adif_field COMMENT "$notes")"
+            rec+=" <EOR>"
+            printf '%s\n' "$rec"
+        done < "$LOG_FILE"
+    } > "$outfile"
+
+    echo
+    printf "%b  Exported%b  %d QSO(s) → %s\n" "$BOLD" "$RESET" "$total" "$outfile"
+    printf "  Sign & upload with: tqsl -d -u \"%s\"\n" "$outfile"
+    echo
+}
+
 # ── Dispatch ───────────────────────────────────────────────────────────────
 case "$action" in
-    add)    do_add;;
-    search) do_search;;
-    stats)  do_stats;;
-    view)   do_view;;
+    add)          do_add;;
+    search)       do_search;;
+    stats)        do_stats;;
+    export_adif)  do_export_adif;;
+    view)         do_view;;
 esac
