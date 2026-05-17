@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # WSPR propagation spots — bash + curl/wget only, no other dependencies
-# Source: db1.wspr.info — public ClickHouse mirror of wsprnet.org
+# Source: db1.wspr.live — public ClickHouse mirror of wsprnet.org
 # Refreshes every 2 min (one WSPR TX cycle)
 
-BASE_URL="https://db1.wspr.info/"
+BASE_URL="https://db1.wspr.live/"
 LIMIT=30
+HOURS=1   # look-back window; increase with --hours if band is quiet
 
 # ── Args ───────────────────────────────────────────────────────────────────
 filter_band=""
@@ -18,12 +19,13 @@ for arg in "$@"; do [[ "$arg" == "--no-color" ]] && no_color=1; done
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --band)     filter_band="$2";      shift 2;;
-        --call)     filter_call="${2^^}";   shift 2;;
-        --limit)    LIMIT="$2";            shift 2;;
-        --interval) interval="$2";         shift 2;;
-        --once)     once=1;                shift;;
-        --debug)    debug=1;               shift;;
+        --band)     filter_band="$2";     shift 2;;
+        --call)     filter_call="${2^^}";  shift 2;;
+        --limit)    LIMIT="$2";           shift 2;;
+        --hours)    HOURS="$2";           shift 2;;
+        --interval) interval="$2";        shift 2;;
+        --once)     once=1;               shift;;
+        --debug)    debug=1;              shift;;
         --no-color) shift;;
         *)          shift;;
     esac
@@ -62,7 +64,7 @@ band_name() {
 
 snr_color() {
     local abs="${1#-}"    # strip leading minus
-    abs="${abs%%.*}"      # integer part
+    abs="${abs%%.*}"      # integer part only
     if   (( abs <= 10 )); then printf '%b' "$GREEN"
     elif (( abs <= 20 )); then printf '%b' "$YELLOW"
     else                       printf '%b' "$GRAY"
@@ -70,24 +72,22 @@ snr_color() {
 }
 
 build_url() {
-    local fields="time%2Ccallsign%2Cgrid%2Creporter%2Creporter_grid%2Csnr%2Cfrequency%2Cpower%2Cband"
-    local sql="SELECT+${fields}+FROM+wspr2_decoded"
-    local where=""
+    # Confirmed columns: time, tx_sign, tx_loc, rx_sign, rx_loc, snr, frequency(Hz), power, band
+    local fields="time%2Ctx_sign%2Ctx_loc%2Crx_sign%2Crx_loc%2Csnr%2Cfrequency%2Cpower%2Cband"
+    local sql="SELECT+${fields}+FROM+wspr.rx"
+    local where="time+%3E+now()+-+INTERVAL+${HOURS}+HOUR"
 
     if [ -n "$filter_band" ]; then
         local bnum
         bnum=$(band_to_num "$filter_band")
-        [ -n "$bnum" ] && where="band%3D${bnum}"
+        [ -n "$bnum" ] && where="${where}+AND+band%3D${bnum}"
     fi
 
     if [ -n "$filter_call" ]; then
-        local cc="(callsign%3D'${filter_call}'+OR+reporter%3D'${filter_call}')"
-        [ -n "$where" ] && where="${where}+AND+${cc}" || where="$cc"
+        where="${where}+AND+(tx_sign%3D%27${filter_call}%27+OR+rx_sign%3D%27${filter_call}%27)"
     fi
 
-    [ -n "$where" ] && sql="${sql}+WHERE+${where}"
-    sql="${sql}+ORDER+BY+time+DESC+LIMIT+${LIMIT}"
-
+    sql="${sql}+WHERE+${where}+ORDER+BY+time+DESC+LIMIT+${LIMIT}+FORMAT+TSV"
     printf '%s' "${BASE_URL}?query=${sql}"
 }
 
@@ -119,26 +119,25 @@ while true; do
         continue
     fi
 
-    # --debug: show first few raw lines to verify field names/format
     if [ "$debug" -eq 1 ]; then
         printf '%s\n' "$data" | head -5
         exit 0
     fi
 
-    # ClickHouse returns "Code. N. Exception..." on error
     if printf '%s' "$data" | grep -qE '^Code\.|^Exception'; then
-        printf "\n  %bWSPR Spots%b  — query error: %s\n\n" "$BOLD" "$RESET" "$data"
+        printf "\n  %bWSPR Spots%b  — query error:\n  %s\n\n" "$BOLD" "$RESET" "$data"
         [ "$once" -eq 1 ] && exit 1
         sleep "$interval"
         continue
     fi
 
-    # TSV: time, callsign(TX), grid(TX), reporter(RX), reporter_grid(RX), snr, frequency, power, band
+    # TSV columns: time, tx_sign, tx_loc, rx_sign, rx_loc, snr, frequency(Hz), power, band
     rows=()
-    while IFS=$'\t' read -r ts tx_call tx_grid rx_call rx_grid snr freq_mhz power band_num; do
+    while IFS=$'\t' read -r ts tx_call tx_grid rx_call rx_grid snr freq_hz power band_num; do
         [ -z "$tx_call" ] && continue
         local_band=$(band_name "$band_num")
-        [[ "$freq_mhz" =~ ^[0-9] ]] && freq_fmt=$(printf '%.4f' "$freq_mhz") || freq_fmt="$freq_mhz"
+        # frequency stored as integer Hz — convert to MHz
+        freq_fmt=$(awk "BEGIN { printf \"%.4f\", ${freq_hz}/1000000 }")
         # "2024-05-17 14:22:00" → "1422z"
         time_fmt=$(printf '%s' "$ts" | grep -oP '\d{2}:\d{2}' | head -1 | tr -d ':')z
         rows+=("${time_fmt}	${tx_call}	${tx_grid}	${rx_call}	${rx_grid}	${local_band}	${freq_fmt}	${snr}	${power}")
@@ -154,22 +153,22 @@ while true; do
     printf "%b  WSPR Spots%b" "$BOLD" "$RESET"
     [ "$once" -eq 0 ] && printf "  — updated %s" "$updated"
     echo
-    printf "  %d spot(s)  [db1.wspr.info%s]\n" "$count" "$filter_desc"
+    printf "  %d spot(s) in last %dh  [db1.wspr.live%s]\n" "$count" "$HOURS" "$filter_desc"
     echo "$SEP"
-    printf "%b  %-6s %-11s %-6s %-11s %-6s %-6s %-11s %5s %4s%b\n" \
+    printf "%b  %-6s %-11s %-6s %-11s %-6s %-6s %-11s %5s %5s%b\n" \
         "$BOLD" "Time" "TX Call" "Grid" "RX Call" "Grid" "Band" "Freq (MHz)" "SNR" "Pwr" "$RESET"
     echo "$SEP"
 
     for (( i=0; i<count; i++ )); do
         IFS=$'\t' read -r time_fmt tx_call tx_grid rx_call rx_grid bnd freq_fmt snr power <<< "${rows[$i]}"
         clr=$(snr_color "$snr")
-        printf "  %-6s %-11s %-6s %-11s %-6s %-6s %-11s %b%5s%b %4s\n" \
+        printf "  %-6s %-11s %-6s %-11s %-6s %-6s %-11s %b%5s%b %4sdBm\n" \
             "$time_fmt" "$tx_call" "$tx_grid" "$rx_call" "$rx_grid" \
-            "$bnd" "$freq_fmt" "$clr" "$snr" "$RESET" "${power}dBm"
+            "$bnd" "$freq_fmt" "$clr" "$snr" "$RESET" "$power"
     done
 
     echo "$SEP"
-    printf "  SNR: %b≥ -10 Strong%b   %b-11 to -20 Moderate%b   %b< -20 Weak%b\n" \
+    printf "  SNR: %b>= -10 Strong%b   %b-11 to -20 Moderate%b   %b< -20 Weak%b\n" \
         "$GREEN" "$RESET" "$YELLOW" "$RESET" "$GRAY" "$RESET"
     echo
 
