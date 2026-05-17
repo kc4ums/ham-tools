@@ -260,9 +260,23 @@ get_band() {
 |---|---|---|---|
 | `band_conditions.sh` | hamqsl.com XML | one-shot | |
 | `pota_spots.sh` | api.pota.app JSON | 300s loop | `--mode`, `--band` filters |
-| `dx_cluster.sh` | telnet DX cluster (nc) | 300s loop | `--callsign`, `--cluster`, `--band`, `--listen` |
+| `dx_cluster.sh` | dxwatch.com HTTP API | 300s loop | `--callsign`, `--cluster`, `--band`, `--listen` |
 | `solar_forecast.sh` | NOAA SWPC text | 3600s loop | `--days N` |
 | `qrz_lookup.sh` | QRZ XML API | one-shot | needs `QRZ_USER`/`QRZ_PASS` env vars |
-| `contest_calendar.sh` | contestcalendar.com iCal | 3600s loop | `--days N` (default 30) |
+| `contest_calendar.sh` | contestcalendar.com iCal | 3600s loop | `--days N` (default 30); iCal feed covers ~1 week |
 | `wspr_spots.sh` | db1.wspr.live ClickHouse TSV | 120s loop | `--band`, `--call`, `--limit N` |
-| `logbook.sh` | local TSV (~/.ham_log.tsv) | one-shot | `--add`, `--search CALL`, `--stats`, `--tail N` |
+| `logbook.sh` | local TSV (~/.ham_log.tsv) | one-shot | `--add`, `--search CALL`, `--stats`, `--tail N`, `--export-adif [FILE]` |
+| `lotw_upload.sh` | local TSV → TQSL → LoTW | one-shot | uploads new QSOs only; `--all` re-uploads everything; `--dry-run` to preview |
+
+### LoTW / logbook env vars
+
+| Variable | Used by | Purpose |
+|---|---|---|
+| `HAM_LOG` | `logbook.sh`, `lotw_upload.sh` | Path to TSV log file (default `~/.ham_log.tsv`) |
+| `HAM_CALL` | `logbook.sh`, `lotw_upload.sh` | Your callsign (for ADIF `STATION_CALLSIGN`) |
+| `HAM_LOC` | `lotw_upload.sh` | TQSL station location name |
+| `TQSL_BIN` | `lotw_upload.sh` | Path to `tqsl` binary if not in PATH |
+
+### Watermark
+
+`lotw_upload.sh` tracks uploads via `<logfile>.lotw_wm` (a plain file containing the last-uploaded line count). The watermark only advances when `tqsl` exits 0. Delete the file to reset.
