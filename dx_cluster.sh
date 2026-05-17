@@ -86,24 +86,38 @@ while true; do
         exit 0
     fi
 
-    # DXWatch JSON: {"dx":[{"t":"HHMM","db":"FREQ","dx":"DXCALL","de":"SPOTTER","msg":"COMMENT"},...]}
+    # DXWatch format — spots live under "s", each entry is a numeric-keyed array:
+    #   "60552720": ["DXCALL", FREQ_KHZ, "SPOTTER", "COMMENT", "HHMMz DD Mon", age, band_id, flag]
     json_flat=$(printf '%s' "$json" | tr -d '\n\r')
     rows=()
 
-    while IFS= read -r obj; do
-        dxcall=$(printf '%s' "$obj"  | grep -oP '"dx"\s*:\s*"\K[^"]+')
-        freq=$(  printf '%s' "$obj"  | grep -oP '"db"\s*:\s*"\K[^"]+')
-        [ -z "$freq" ] && freq=$(printf '%s' "$obj" | grep -oP '"db"\s*:\s*\K[0-9.]+')
-        spotter=$(printf '%s' "$obj" | grep -oP '"de"\s*:\s*"\K[^"]+')
-        comment=$(printf '%s' "$obj" | grep -oP '"msg"\s*:\s*"\K[^"]+')
-        time=$(  printf '%s' "$obj"  | grep -oP '"t"\s*:\s*"\K[^"]+')
-        band=$(get_band "$freq")
+    while IFS= read -r entry; do
+        arr=$(printf '%s' "$entry" | grep -oP '\[[^\]]+\]')
+        [ -z "$arr" ] && continue
 
+        # Quoted strings in array order: [0]=dxcall [1]=spotter [2]=comment [3]=time
+        dxcall=$(printf '%s' "$arr" | grep -oP '"[^"]*"' | sed -n '1p' | tr -d '"')
+        spotter=$(printf '%s' "$arr" | grep -oP '"[^"]*"' | sed -n '2p' | tr -d '"')
+        comment=$(printf '%s' "$arr" | grep -oP '"[^"]*"' | sed -n '3p' | tr -d '"')
+        timestr=$(printf '%s' "$arr" | grep -oP '"[^"]*"' | sed -n '4p' | tr -d '"')
+
+        # Frequency is the bare number right after the first quoted string
+        freq=$(printf '%s' "$arr" | grep -oP '^\["[^"]*",\K[0-9]+\.?[0-9]*')
+
+        # Unescape JSON \/ and HTML entities
+        dxcall=$(printf '%s' "$dxcall"  | sed 's/\\\//\//g')
+        spotter=$(printf '%s' "$spotter" | sed 's/\\\//\//g')
+        comment=$(printf '%s' "$comment" | sed 's/\\\//\//g; s/&amp;/\&/g; s/&lt;/</g; s/&gt;/>/g')
+
+        # Time: "1422z 17 May" → "1422z"
+        time="${timestr%% *}"
+
+        band=$(get_band "$freq")
         [ -z "$dxcall" ] && continue
         [ -n "$filter_band" ] && [ "$band" != "$filter_band" ] && continue
 
         rows+=("${dxcall}	${freq}	${band}	${spotter}	${comment}	${time}")
-    done < <(printf '%s' "$json_flat" | grep -oP '\{[^}]+\}')
+    done < <(printf '%s' "$json_flat" | grep -oP '"[0-9]+"\s*:\s*\[[^\]]+\]')
 
     count=${#rows[@]}
 
