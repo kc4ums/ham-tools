@@ -19,6 +19,8 @@ show_help() {
   --stats                Summary by band and mode
   --export-adif [FILE]   Export all QSOs to ADIF for LoTW/TQSL upload
                          Default output: ~/.ham_log.adi
+  --import-adif FILE     Import QSOs from an ADIF file (e.g. LoTW export)
+                         Skips duplicates matched by call + date + time
   --tail N               Show last N QSOs  (default: 25)
   --file PATH            Use a different log file
   --no-color             Plain text output
@@ -35,6 +37,7 @@ EOF
 action="view"
 search_term=""
 adif_file=""
+adif_import_file=""
 no_color=0
 
 while [[ $# -gt 0 ]]; do
@@ -46,6 +49,7 @@ while [[ $# -gt 0 ]]; do
             action="export_adif"
             [[ -n "${2:-}" && "${2:0:1}" != "-" ]] && { adif_file="$2"; shift; }
             shift;;
+        --import-adif) action="import_adif"; adif_import_file="$2"; shift 2;;
         --tail)        VIEW_COUNT="$2";           shift 2;;
         --file)        LOG_FILE="$2";             shift 2;;
         --no-color)    no_color=1;                shift;;
@@ -321,11 +325,95 @@ do_export_adif() {
     echo
 }
 
+do_import_adif() {
+    [ -f "$adif_import_file" ] || {
+        printf "\n  Error: file not found: %s\n\n" "$adif_import_file" >&2; exit 1
+    }
+    ensure_log
+
+    # Build a temp file of existing keys (CALL<tab>DATE<tab>TIME) for dup detection
+    local tmp_keys
+    tmp_keys=$(mktemp)
+
+    awk -F'\t' 'NF>=3 { print $3 "\t" $1 "\t" $2 }' "$LOG_FILE" > "$tmp_keys" 2>/dev/null
+
+    echo
+    printf "%b  Import ADIF%b  — %s\n" "$BOLD" "$RESET" "$adif_import_file"
+    echo "$SEP"
+
+    # Single awk pass: parse ADIF using field lengths (handles // comments correctly),
+    # check duplicates, append new records directly to the log file.
+    local stats
+    stats=$(awk -v keys="$tmp_keys" -v logfile="$LOG_FILE" '
+    BEGIN {
+        in_hdr = 1; imported = 0; skipped = 0; errors = 0
+        while ((getline line < keys) > 0) existing[line] = 1
+        close(keys)
+    }
+    in_hdr { if (tolower($0) ~ /<eoh>/) in_hdr = 0; next }
+    {
+        line = $0
+        # Extract every <NAME:LEN>VALUE token on this line
+        while (match(line, /<[A-Za-z_][A-Za-z_0-9]*:[0-9]+>/)) {
+            tag   = substr(line, RSTART, RLENGTH)
+            rest  = substr(line, RSTART + RLENGTH)
+            inner = substr(tag, 2, length(tag) - 2)   # strip < >
+            colon = index(inner, ":")
+            fname = toupper(substr(inner, 1, colon - 1))
+            flen  = substr(inner, colon + 1) + 0
+            fields[fname] = substr(rest, 1, flen)      # exact length — ignores // comments
+            line  = substr(rest, flen + 1)
+        }
+        if (tolower($0) ~ /<eor>/) {
+            call     = toupper(fields["CALL"])
+            d        = fields["QSO_DATE"]
+            t        = fields["TIME_ON"]
+            freq_mhz = fields["FREQ"] + 0
+            band     = tolower(fields["BAND"])
+            mode     = toupper(fields["MODE"])
+            grid     = toupper(fields["GRIDSQUARE"])
+            for (k in fields) delete fields[k]
+
+            if (call == "" || d == "" || t == "") { errors++; next }
+
+            date_fmt = substr(d,1,4)"-"substr(d,5,2)"-"substr(d,7,2)
+            time4    = substr(t, 1, 4)
+            freq_khz = int(freq_mhz * 1000 + 0.5)
+            rst      = (mode ~ /^(CW|FT8|FT4|WSPR|PSK31|RTTY|JS8|OLIVIA)$/) ? "599" : "59"
+
+            dup_key = call "\t" date_fmt "\t" time4
+            if (dup_key in existing) { skipped++; next }
+
+            print date_fmt "\t" time4 "\t" call "\t" freq_khz "\t" band "\t" mode "\t" rst "\t" rst "\t" grid >> logfile
+            existing[dup_key] = 1
+            imported++
+        }
+    }
+    END { print imported ":" skipped ":" errors }
+    ' "$adif_import_file")
+
+    rm -f "$tmp_keys"
+
+    local imported skipped errors
+    imported=$(printf '%s' "$stats" | cut -d: -f1)
+    skipped=$(printf '%s'  "$stats" | cut -d: -f2)
+    errors=$(printf '%s'   "$stats" | cut -d: -f3)
+
+    printf "  Imported:  %b%d%b\n"  "$GREEN" "${imported:-0}" "$RESET"
+    printf "  Skipped:   %d  (already in log)\n" "${skipped:-0}"
+    [ "${errors:-0}" -gt 0 ] && \
+        printf "  %bErrors:%b   %d  (missing call/date/time)\n" "$RED" "$RESET" "${errors:-0}"
+    echo "$SEP"
+    printf "  Log now has %d QSO(s)  [%s]\n" "$(qso_count)" "$LOG_FILE"
+    echo
+}
+
 # ── Dispatch ───────────────────────────────────────────────────────────────
 case "$action" in
     add)          do_add;;
     search)       do_search;;
     stats)        do_stats;;
     export_adif)  do_export_adif;;
+    import_adif)  do_import_adif;;
     view)         do_view;;
 esac
