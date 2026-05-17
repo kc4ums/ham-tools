@@ -16,7 +16,7 @@ show_help() {
   Current conditions and 10-day forecast from Open-Meteo (no API key needed).
   Refreshes every 30 minutes. Press any key to refresh immediately.
 
-  LOCATION       City name or "City, State"  (e.g. "Kansas City" or "Kansas City, MO")
+  LOCATION       City name or "City, State"  (e.g. "Tifton" or "Tifton, GA")
                  Omit to use --lat/--lon or be prompted
 
   --lat LAT      Latitude  (decimal degrees)

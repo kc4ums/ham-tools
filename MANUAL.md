@@ -320,7 +320,7 @@ bash weather.sh --once "Chicago"       # one-shot, no auto-refresh
 **Launcher shortcut:** set `HAM_WEATHER_LOC` in your environment and option 9 in the menu will always use that location without prompting.
 
 ```bash
-export HAM_WEATHER_LOC="Kansas City, MO"
+export HAM_WEATHER_LOC="Tifton, GA"
 ```
 
 ---
@@ -374,7 +374,7 @@ Without env vars the script will prompt interactively.
 | `HAM_CALL` | logbook, lotw_upload | Your callsign (for ADIF `STATION_CALLSIGN`) |
 | `HAM_LOC` | lotw_upload | TQSL station location name |
 | `TQSL_BIN` | lotw_upload | Full path to `tqsl` binary if not in PATH |
-| `HAM_WEATHER_LOC` | ham.sh launcher | Default city for weather (e.g. `"Kansas City, MO"`) |
+| `HAM_WEATHER_LOC` | ham.sh launcher | Default city for weather (e.g. `"Tifton, GA"`) |
 | `QRZ_USER` | qrz_lookup | QRZ username |
 | `QRZ_PASS` | qrz_lookup | QRZ password |
 
@@ -397,7 +397,7 @@ Without env vars the script will prompt interactively.
 ```bash
 export HAM_CALL=KC4UMS
 export HAM_LOC="Home QTH"
-export HAM_WEATHER_LOC="Kansas City, MO"
+export HAM_WEATHER_LOC="Tifton, GA"
 export QRZ_USER=KC4UMS
 export QRZ_PASS=yourpassword
 ```
