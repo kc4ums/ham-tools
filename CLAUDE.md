@@ -260,15 +260,16 @@ get_band() {
 |---|---|---|---|
 | `band_conditions.sh` | hamqsl.com XML | one-shot | |
 | `pota_spots.sh` | api.pota.app JSON | 300s loop | `--mode`, `--band` filters |
-| `dx_cluster.sh` | dxwatch.com HTTP API | 300s loop | `--callsign`, `--cluster`, `--band`, `--listen` |
+| `dx_cluster.sh` | dxwatch.com HTTP API | 300s loop | `--band` filter, `--debug` |
 | `solar_forecast.sh` | NOAA SWPC text | 3600s loop | `--days N` |
 | `qrz_lookup.sh` | QRZ XML API | one-shot | needs `QRZ_USER`/`QRZ_PASS` env vars |
 | `contest_calendar.sh` | contestcalendar.com iCal | 3600s loop | `--days N` (default 30); iCal feed covers ~1 week |
-| `wspr_spots.sh` | db1.wspr.live ClickHouse TSV | 120s loop | `--band`, `--call`, `--limit N` |
+| `wspr_spots.sh` | db1.wspr.live ClickHouse TSV | 120s loop | `--band`, `--call`, `--hours N`, `--limit N` |
+| `weather.sh` | Open-Meteo JSON | 1800s loop | `--units F\|C`, `--lat/--lon`, `HAM_WEATHER_LOC` |
 | `logbook.sh` | local TSV (~/.ham_log.tsv) | one-shot | `--add`, `--search CALL`, `--stats`, `--tail N`, `--export-adif [FILE]` |
 | `lotw_upload.sh` | local TSV → TQSL → LoTW | one-shot | uploads new QSOs only; `--all` re-uploads everything; `--dry-run` to preview |
 
-### LoTW / logbook env vars
+### Environment variables
 
 | Variable | Used by | Purpose |
 |---|---|---|
@@ -276,6 +277,13 @@ get_band() {
 | `HAM_CALL` | `logbook.sh`, `lotw_upload.sh` | Your callsign (for ADIF `STATION_CALLSIGN`) |
 | `HAM_LOC` | `lotw_upload.sh` | TQSL station location name |
 | `TQSL_BIN` | `lotw_upload.sh` | Path to `tqsl` binary if not in PATH |
+| `HAM_WEATHER_LOC` | `ham.sh` (launcher) | City name passed to `weather.sh` from the menu |
+| `QRZ_USER` | `qrz_lookup.sh` | QRZ username |
+| `QRZ_PASS` | `qrz_lookup.sh` | QRZ password |
+
+### grep -P locale fix
+
+Scripts that use `grep -oP` (dx_cluster, pota_spots, wspr_spots, weather) include `export LANG="${LANG:-en_US.UTF-8}"` near the top. This is required on Windows Git Bash where `LANG` is unset; `grep -P` refuses to run without a UTF-8 locale. New scripts using `grep -oP` must include this line.
 
 ### Watermark
 

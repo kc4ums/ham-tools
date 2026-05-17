@@ -13,7 +13,7 @@ No installs beyond `curl` or `wget` — everything runs with standard shell tool
 bash ham.sh
 ```
 
-Select a tool by number. Press **Ctrl+C** to stop a running tool and return to the menu.
+Select a tool by number (1–9). Press **Ctrl+C** to stop a running tool and return to the menu.
 
 ### Run a tool directly
 
@@ -286,7 +286,46 @@ bash logbook.sh --export-adif /tmp/log.adi
 
 ---
 
-### 9. LoTW Upload — `lotw_upload.sh`
+### 9. Weather — `weather.sh`
+
+Current conditions and 10-day forecast from Open-Meteo.
+No API key required. Auto-refreshes every 30 minutes. Press any key to refresh immediately.
+
+```bash
+bash weather.sh "Raleigh"              # geocode city and show weather
+bash weather.sh "Raleigh, NC"          # state qualifier is accepted (stripped for geocoder)
+bash weather.sh --lat 35.77 --lon -78.64   # exact coordinates, skip geocoding
+bash weather.sh "London" --units C     # Celsius, km/h, mm
+bash weather.sh --once "Chicago"       # one-shot, no auto-refresh
+```
+
+**Output includes:**
+- **Current:** conditions, temperature (with feels-like), humidity, wind speed and direction, precipitation if any
+- **10-day:** high/low temps, precipitation sum, max wind, condition description
+
+**Color coding:** clear=green, cloudy/fog=gray, rain/drizzle=blue, snow=cyan, storms=yellow
+
+**Flags:**
+
+| Flag | Description |
+|---|---|
+| `--lat LAT` | Latitude in decimal degrees |
+| `--lon LON` | Longitude in decimal degrees |
+| `--units F\|C` | Temperature units: F=Fahrenheit (default), C=Celsius |
+| `--interval N` | Refresh every N seconds (default: 1800) |
+| `--once` | Fetch once and exit |
+| `--no-color` | Plain text output |
+| `--help` | Show usage |
+
+**Launcher shortcut:** set `HAM_WEATHER_LOC` in your environment and option 9 in the menu will always use that location without prompting.
+
+```bash
+export HAM_WEATHER_LOC="Kansas City, MO"
+```
+
+---
+
+### 10. LoTW Upload — `lotw_upload.sh`
 
 Signs and uploads new QSOs to ARRL Logbook of The World via TQSL.
 Requires [TQSL](https://lotw.arrl.org/lotw-help/installation/) to be installed and your certificate set up.
@@ -335,6 +374,7 @@ Without env vars the script will prompt interactively.
 | `HAM_CALL` | logbook, lotw_upload | Your callsign (for ADIF `STATION_CALLSIGN`) |
 | `HAM_LOC` | lotw_upload | TQSL station location name |
 | `TQSL_BIN` | lotw_upload | Full path to `tqsl` binary if not in PATH |
+| `HAM_WEATHER_LOC` | ham.sh launcher | Default city for weather (e.g. `"Kansas City, MO"`) |
 | `QRZ_USER` | qrz_lookup | QRZ username |
 | `QRZ_PASS` | qrz_lookup | QRZ password |
 
@@ -357,6 +397,7 @@ Without env vars the script will prompt interactively.
 ```bash
 export HAM_CALL=KC4UMS
 export HAM_LOC="Home QTH"
+export HAM_WEATHER_LOC="Kansas City, MO"
 export QRZ_USER=KC4UMS
 export QRZ_PASS=yourpassword
 ```
