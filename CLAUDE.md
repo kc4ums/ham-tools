@@ -264,3 +264,4 @@ get_band() {
 | `solar_forecast.sh` | NOAA SWPC text | 3600s loop | `--days N` |
 | `qrz_lookup.sh` | QRZ XML API | one-shot | needs `QRZ_USER`/`QRZ_PASS` env vars |
 | `contest_calendar.sh` | contestcalendar.com iCal | 3600s loop | `--days N` (default 30) |
+| `wspr_spots.sh` | db1.wspr.info ClickHouse TSV | 120s loop | `--band`, `--call`, `--limit N` |
