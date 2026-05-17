@@ -1,0 +1,136 @@
+#!/usr/bin/env bash
+# DX cluster spots — bash + nc only, no other dependencies
+# Requires: nc (netcat) — apt install netcat / pacman -S openbsd-netcat
+
+CLUSTER_HOST="${DX_CLUSTER_HOST:-dxspots.com}"
+CLUSTER_PORT="${DX_CLUSTER_PORT:-23}"
+CALLSIGN="${HAM_CALLSIGN:-NOCALL}"
+LISTEN_SECS=12
+
+# ── Args ───────────────────────────────────────────────────────────────────
+filter_band=""
+no_color=0
+interval=300
+once=0
+
+for arg in "$@"; do [[ "$arg" == "--no-color" ]] && no_color=1; done
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --callsign) CALLSIGN="${2^^}"; shift 2;;
+        --cluster)  CLUSTER_HOST="$2"; shift 2;;
+        --band)     filter_band="$2";  shift 2;;
+        --listen)   LISTEN_SECS="$2";  shift 2;;
+        --interval) interval="$2";     shift 2;;
+        --once)     once=1;            shift;;
+        --no-color) shift;;
+        *)          shift;;
+    esac
+done
+
+# ── Colors ─────────────────────────────────────────────────────────────────
+if [ -t 1 ] && [ "$no_color" -eq 0 ]; then
+    GREEN=$'\033[92m'; YELLOW=$'\033[93m'; RED=$'\033[91m'
+    BLUE=$'\033[94m';  CYAN=$'\033[96m';   MAGENTA=$'\033[95m'
+    GRAY=$'\033[90m';  BOLD=$'\033[1m';    RESET=$'\033[0m'
+else
+    GREEN=''; YELLOW=''; RED=''; BLUE=''; CYAN=''; MAGENTA=''; GRAY=''; BOLD=''; RESET=''
+fi
+
+SEP="--------------------------------------------------------------------------"
+
+# ── Helpers ────────────────────────────────────────────────────────────────
+get_band() {
+    local f="${1%%.*}"
+    [[ "$f" =~ ^[0-9]+$ ]] || { echo "Other"; return; }
+    if   (( f >= 1800  && f <= 2000  )); then echo "160m"
+    elif (( f >= 3500  && f <= 4000  )); then echo "80m"
+    elif (( f >= 5330  && f <= 5410  )); then echo "60m"
+    elif (( f >= 7000  && f <= 7300  )); then echo "40m"
+    elif (( f >= 10100 && f <= 10150 )); then echo "30m"
+    elif (( f >= 14000 && f <= 14350 )); then echo "20m"
+    elif (( f >= 18068 && f <= 18168 )); then echo "17m"
+    elif (( f >= 21000 && f <= 21450 )); then echo "15m"
+    elif (( f >= 24890 && f <= 24990 )); then echo "12m"
+    elif (( f >= 28000 && f <= 29700 )); then echo "10m"
+    elif (( f >= 50000 && f <= 54000 )); then echo "6m"
+    else echo "Other"
+    fi
+}
+
+# ── Preflight ──────────────────────────────────────────────────────────────
+if ! command -v nc >/dev/null 2>&1; then
+    printf "Error: nc (netcat) is required\n" >&2
+    printf "  Install: apt install netcat-openbsd  |  brew install netcat\n" >&2
+    exit 1
+fi
+
+# ── Main loop ──────────────────────────────────────────────────────────────
+trap 'printf "\n  Stopped.\n\n"; exit 0' INT TERM
+
+while true; do
+    [ "$once" -eq 0 ] && clear
+
+    printf "\n  %bDX Cluster Spots%b  — connecting to %s:%s ...\n" \
+        "$BOLD" "$RESET" "$CLUSTER_HOST" "$CLUSTER_PORT"
+
+    # Hold stdin open: wait for banner, login, collect spots, then close
+    raw=$(
+        { sleep 2; printf '%s\r\n' "$CALLSIGN"; sleep "$LISTEN_SECS"; } \
+            | nc "$CLUSTER_HOST" "$CLUSTER_PORT" 2>/dev/null \
+            | tr -d '\r' \
+            | grep "^DX de" \
+            | tail -50
+    )
+    updated=$(date "+%H:%M:%S")
+
+    rows=()
+    while IFS= read -r line; do
+        # DX de SPOTTER:  FREQ  DXCALL  COMMENT  TIME
+        parsed=$(awk '{
+            gsub(/:$/, "", $3)
+            dxcall=$5; freq=$4; spotter=$3; time=$NF
+            comment=""
+            for (i=6; i<NF; i++) comment = comment (i>6 ? " " : "") $i
+            printf "%s\t%s\t%s\t%s\t%s\n", dxcall, freq, spotter, comment, time
+        }' <<< "$line")
+        IFS=$'\t' read -r dxcall freq spotter comment time <<< "$parsed"
+        band=$(get_band "$freq")
+        [ -z "$dxcall" ] && continue
+        [ -n "$filter_band" ] && [ "$band" != "$filter_band" ] && continue
+        rows+=("${dxcall}	${freq}	${band}	${spotter}	${comment}	${time}")
+    done <<< "$raw"
+
+    count=${#rows[@]}
+
+    clear
+    echo
+    printf "%b  DX Cluster Spots%b  — updated %s\n" "$BOLD" "$RESET" "$updated"
+    printf "  %d spot(s)  [%s  callsign: %s]\n" "$count" "$CLUSTER_HOST" "$CALLSIGN"
+    echo "$SEP"
+    printf "%b  %-12s %-10s %-6s %-12s %-20s %s%b\n" \
+        "$BOLD" "DX Call" "Freq (kHz)" "Band" "Spotter" "Comment" "Time" "$RESET"
+    echo "$SEP"
+
+    for (( i=0; i<count; i++ )); do
+        IFS=$'\t' read -r dxcall freq band spotter comment time <<< "${rows[$i]}"
+        clr=""
+        case "$band" in
+            160m|80m)    clr="$RED";;
+            40m|30m)     clr="$YELLOW";;
+            20m|17m)     clr="$GREEN";;
+            15m|12m|10m) clr="$BLUE";;
+            6m)          clr="$MAGENTA";;
+        esac
+        printf "  %b%-12s%b %-10s %-6s %-12s %-20s %s\n" \
+            "$clr" "$dxcall" "$RESET" "$freq" "$band" "$spotter" "${comment:0:20}" "$time"
+    done
+
+    echo "$SEP"
+    echo
+
+    [ "$once" -eq 1 ] && break
+
+    printf "  Refreshing in %ds — Ctrl+C to quit\n\n" "$interval"
+    sleep "$interval"
+done

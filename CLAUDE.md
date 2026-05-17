@@ -256,7 +256,11 @@ get_band() {
 
 ## Existing tools
 
-| File | Data source | Refresh |
-|---|---|---|
-| `band_conditions.sh` | hamqsl.com XML | one-shot |
-| `pota_spots.sh` | api.pota.app JSON | 300s loop |
+| File | Data source | Refresh | Notes |
+|---|---|---|---|
+| `band_conditions.sh` | hamqsl.com XML | one-shot | |
+| `pota_spots.sh` | api.pota.app JSON | 300s loop | `--mode`, `--band` filters |
+| `dx_cluster.sh` | telnet DX cluster (nc) | 300s loop | `--callsign`, `--cluster`, `--band`, `--listen` |
+| `solar_forecast.sh` | NOAA SWPC text | 3600s loop | `--days N` |
+| `qrz_lookup.sh` | QRZ XML API | one-shot | needs `QRZ_USER`/`QRZ_PASS` env vars |
+| `contest_calendar.sh` | contestcalendar.com iCal | 3600s loop | `--days N` (default 30) |
