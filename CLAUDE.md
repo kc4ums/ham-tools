@@ -264,4 +264,5 @@ get_band() {
 | `solar_forecast.sh` | NOAA SWPC text | 3600s loop | `--days N` |
 | `qrz_lookup.sh` | QRZ XML API | one-shot | needs `QRZ_USER`/`QRZ_PASS` env vars |
 | `contest_calendar.sh` | contestcalendar.com iCal | 3600s loop | `--days N` (default 30) |
-| `wspr_spots.sh` | db1.wspr.info ClickHouse TSV | 120s loop | `--band`, `--call`, `--limit N` |
+| `wspr_spots.sh` | db1.wspr.live ClickHouse TSV | 120s loop | `--band`, `--call`, `--limit N` |
+| `logbook.sh` | local TSV (~/.ham_log.tsv) | one-shot | `--add`, `--search CALL`, `--stats`, `--tail N` |
