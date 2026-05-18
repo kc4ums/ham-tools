@@ -267,7 +267,7 @@ get_band() {
 | `wspr_spots.sh` | db1.wspr.live ClickHouse TSV | 120s loop | `--band`, `--call`, `--hours N`, `--limit N` |
 | `weather.sh` | Open-Meteo JSON | 1800s loop | `--units F\|C`, `--lat/--lon`, `HAM_WEATHER_LOC` |
 | `logbook.sh` | local TSV (~/.ham_log.tsv) | one-shot | `--add`, `--search CALL`, `--stats`, `--tail N`, `--export-adif [FILE]` |
-| `lotw_upload.sh` | local TSV → TQSL → LoTW | one-shot | uploads new QSOs only; `--all` re-uploads everything; `--dry-run` to preview |
+| `lotw_upload.sh` | local TSV → TQSL → LoTW | one-shot | uploads new QSOs only; `--all` re-uploads everything; `--dry-run` to preview; `--set-watermark` after bulk import |
 
 ### Environment variables
 
@@ -288,3 +288,5 @@ Scripts that use `grep -oP` (dx_cluster, pota_spots, wspr_spots, weather) includ
 ### Watermark
 
 `lotw_upload.sh` tracks uploads via `<logfile>.lotw_wm` (a plain file containing the last-uploaded line count). The watermark only advances when `tqsl` exits 0. Delete the file to reset.
+
+After a bulk import of QSOs that originated from LoTW (e.g. `--import-adif`), run `lotw_upload.sh --set-watermark` immediately so those records are not re-uploaded.

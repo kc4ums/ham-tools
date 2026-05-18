@@ -356,13 +356,23 @@ Without env vars the script will prompt interactively.
 |---|---|
 | `--all` | Upload every QSO, ignoring the watermark |
 | `--dry-run` | Preview what would be sent; do not call tqsl |
+| `--set-watermark` | Mark all current QSOs as already uploaded (see below) |
 | `--loc NAME` | TQSL station location name (or `HAM_LOC`) |
 | `--call SIGN` | Override callsign / certificate (or `HAM_CALL`) |
 | `--tqsl PATH` | Path to tqsl binary (or `TQSL_BIN`) |
 | `--no-color` | Plain text output |
 | `--help` | Show usage |
 
-**Watermark file:** `~/.ham_log.lotw_wm` — delete this file to reset upload history.
+**Watermark file:** `~/.ham_log.lotw_wm` — stores the line count of the last successful upload. Delete this file to reset.
+
+**After importing from LoTW** (`--import-adif`), the imported QSOs are already in LoTW so they don't need to be re-uploaded. Run `--set-watermark` immediately after any LoTW import to stamp the watermark at the current count:
+
+```bash
+bash logbook.sh --import-adif imports/lotwreport.adi
+bash lotw_upload.sh --set-watermark
+```
+
+From that point on, only QSOs you log yourself with `--add` will be treated as new.
 
 ---
 
@@ -420,4 +430,11 @@ bash lotw_upload.sh --dry-run
 ```bash
 bash logbook.sh --add          # log your QSOs
 bash lotw_upload.sh            # sign and upload new ones to LoTW
+```
+
+**After importing a LoTW export:**
+
+```bash
+bash logbook.sh --import-adif imports/lotwreport.adi
+bash lotw_upload.sh --set-watermark   # those QSOs are already in LoTW
 ```

@@ -15,13 +15,15 @@ show_help() {
   tracks which QSOs have already been sent — only new entries are
   uploaded on each run.
 
-  --all           Upload every QSO, ignoring watermark (re-upload all)
-  --dry-run       Preview what would be sent; does not call tqsl
-  --loc NAME      TQSL station location name  (or set HAM_LOC env var)
-  --call SIGN     Callsign / certificate to use  (or set HAM_CALL)
-  --tqsl PATH     Path to tqsl binary  (or set TQSL_BIN; default: tqsl)
-  --no-color      Plain text output
-  --help          Show this help
+  --all              Upload every QSO, ignoring watermark (re-upload all)
+  --dry-run          Preview what would be sent; does not call tqsl
+  --set-watermark    Mark all current QSOs as already uploaded
+                     Use after importing QSOs that came from LoTW
+  --loc NAME         TQSL station location name  (or set HAM_LOC env var)
+  --call SIGN        Callsign / certificate to use  (or set HAM_CALL)
+  --tqsl PATH        Path to tqsl binary  (or set TQSL_BIN; default: tqsl)
+  --no-color         Plain text output
+  --help             Show this help
 
   Environment variables:
     HAM_LOG       Log file path       (default: ~/.ham_log.tsv)
@@ -39,6 +41,7 @@ EOF
 
 upload_all=0
 dry_run=0
+set_watermark=0
 station_loc="${HAM_LOC:-}"
 station_call="${HAM_CALL:-}"
 no_color=0
@@ -47,13 +50,14 @@ for arg in "$@"; do [[ "$arg" == "--no-color" ]] && no_color=1; done
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --all)      upload_all=1;              shift;;
-        --dry-run)  dry_run=1;                 shift;;
-        --loc)      station_loc="$2";          shift 2;;
-        --call)     station_call="${2^^}";     shift 2;;
-        --tqsl)     TQSL_BIN="$2";            shift 2;;
-        --no-color) shift;;
-        *)          shift;;
+        --all)            upload_all=1;              shift;;
+        --dry-run)        dry_run=1;                 shift;;
+        --set-watermark)  set_watermark=1;           shift;;
+        --loc)            station_loc="$2";          shift 2;;
+        --call)           station_call="${2^^}";     shift 2;;
+        --tqsl)           TQSL_BIN="$2";            shift 2;;
+        --no-color)       shift;;
+        *)                shift;;
     esac
 done
 
@@ -111,6 +115,16 @@ fi
 total=$(wc -l < "$LOG_FILE" | tr -d ' ')
 watermark=0
 [ -f "$WM_FILE" ] && watermark=$(cat "$WM_FILE")
+
+# ── Set watermark ───────────────────────────────────────────────────────────
+if [ "$set_watermark" -eq 1 ]; then
+    printf '%d\n' "$total" > "$WM_FILE"
+    echo
+    printf "%b  Watermark set%b  → QSO #%d\n" "$BOLD" "$RESET" "$total"
+    printf "  All %d QSO(s) marked as already uploaded.\n" "$total"
+    printf "  New QSOs logged from here on will be picked up on the next upload.\n\n"
+    exit 0
+fi
 
 if [ "$upload_all" -eq 1 ]; then
     from_line=1
