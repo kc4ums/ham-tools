@@ -1,0 +1,10 @@
+# Log and export files
+*.tsv
+*.adi
+*.lotw_wm
+
+# ADIF imports folder
+imports/
+
+# Claude Code local settings
+.claude/

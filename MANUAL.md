@@ -13,7 +13,7 @@ No installs beyond `curl` or `wget` — everything runs with standard shell tool
 bash ham.sh
 ```
 
-Select a tool by number (1–9). Press **Ctrl+C** to stop a running tool and return to the menu.
+Select a tool by number (1–9) or letter (a–c). Press **Ctrl+C** to stop a running tool and return to the menu.
 
 ### Run a tool directly
 
@@ -376,12 +376,168 @@ From that point on, only QSOs you log yourself with `--add` will be treated as n
 
 ---
 
+### 11. SOTA Spots — `sota_spots.sh`
+
+Recent Summits on the Air activator spots from api2.sota.org.uk.
+Auto-refreshes every 5 minutes. Press any key to refresh immediately.
+*(Menu key: **a**)*
+
+```bash
+bash sota_spots.sh
+bash sota_spots.sh --band 20m
+bash sota_spots.sh --mode CW
+bash sota_spots.sh --limit 25
+bash sota_spots.sh --once
+```
+
+**Output columns:** #, Activator, Freq (MHz), Mode, Summit reference (e.g. `W4A/PT-001`), Time, Summit name/elevation/points.
+
+**Flags:**
+
+| Flag | Description |
+|---|---|
+| `--mode MODE` | Filter by mode: `CW` `SSB` `FT8` `FT4` `FM` |
+| `--band BAND` | Filter by band: `160m` `80m` `40m` `30m` `20m` `17m` `15m` `12m` `10m` `6m` |
+| `--limit N` | Number of recent spots to fetch (default: 50) |
+| `--interval N` | Refresh every N seconds (default: 300) |
+| `--once` | Fetch once and exit |
+| `--no-color` | Plain text output |
+| `--help` | Show usage |
+
+**Color coding:** CW=green, SSB=yellow, FT8=blue, FT4=cyan, FM=magenta
+
+**Note:** The same activator may appear multiple times if they moved to a new frequency. Spots are shown newest-first.
+
+---
+
+### 12. PSK Reporter — `psk_reporter.sh`
+
+Shows which stations have recently heard your callsign, via pskreporter.info.
+No API key required. Auto-refreshes every 5 minutes. Press any key to refresh immediately.
+*(Menu key: **b**)*
+
+```bash
+bash psk_reporter.sh --call KC4UMS
+bash psk_reporter.sh --call KC4UMS --band 20m
+bash psk_reporter.sh --call KC4UMS --mode CW
+bash psk_reporter.sh --call KC4UMS --once
+```
+
+If `HAM_CALL` is set in your environment, `--call` is optional:
+
+```bash
+export HAM_CALL=KC4UMS
+bash psk_reporter.sh
+```
+
+**Output columns:** Heard By (receiver callsign), Grid (Maidenhead locator), Freq (kHz), Band, Mode, SNR, DX (DXCC code), Time.
+
+**Flags:**
+
+| Flag | Description |
+|---|---|
+| `--call CALL` | Callsign to look up (required if `$HAM_CALL` not set) |
+| `--mode MODE` | Filter by mode: `CW` `FT8` `FT4` `SSB` `JS8` |
+| `--band BAND` | Filter by band: `160m` `80m` `40m` `30m` `20m` `17m` `15m` `12m` `10m` `6m` |
+| `--interval N` | Refresh every N seconds (default: 300) |
+| `--once` | Fetch once and exit |
+| `--no-color` | Plain text output |
+| `--help` | Show usage |
+
+**Color coding:** CW=green, SSB=yellow, FT8=blue, FT4=cyan, FM=magenta
+
+**Tip:** Run immediately after a CW or digital QSO to confirm your signal was reaching the intended areas.
+
+---
+
+### 13. APRS TNC Monitor — `aprs_tnc.sh`
+
+Reads live APRS traffic from a Pakratt 232 TNC connected to a serial port.
+Streams decoded packets continuously. Ctrl+C to quit.
+*(Menu key: **c**)*
+
+```bash
+bash aprs_tnc.sh --port /dev/ttyS4           # COM5 on Windows
+bash aprs_tnc.sh --port COM5                 # Windows style auto-converted
+bash aprs_tnc.sh --port /dev/ttyUSB0         # USB-serial adapter on Linux
+bash aprs_tnc.sh --port COM5 --init          # also send TNC init commands
+bash aprs_tnc.sh --port COM5 --baud 4800
+```
+
+**Output columns:** Time, Callsign, Type (POS/MSG/WX/OBJ/STAT/TELEM/PKT), Info (payload summary).
+
+**Flags:**
+
+| Flag | Description |
+|---|---|
+| `--port PORT` | Serial port device (default: `/dev/ttyS0`) |
+| `--baud N` | Host baud rate (default: 9600) |
+| `--init` | Send TNC init commands at startup (see below) |
+| `--no-color` | Plain text output |
+| `--help` | Show usage |
+
+**Color coding:** POS=green, MSG=yellow, WX=cyan, OBJ/ITEM=blue, STAT=gray, TELEM=magenta
+
+**Packet types:**
+
+| Type | Meaning |
+|---|---|
+| POS | Position report (with or without timestamp) |
+| MSG | APRS message |
+| WX | Weather report |
+| OBJ | Object |
+| ITEM | Item |
+| STAT | Status |
+| TELEM | Telemetry |
+| PKT | Other / unrecognized |
+
+#### Windows COM port mapping
+
+In Git Bash, COM ports map to `/dev/ttyS` devices:
+
+| Windows | Git Bash |
+|---|---|
+| COM1 | `/dev/ttyS0` |
+| COM3 | `/dev/ttyS2` |
+| COM5 | `/dev/ttyS4` |
+
+The script also accepts `COM5` directly and converts it automatically.
+
+To see which ports are present: `ls /dev/ttyS*`
+
+#### TNC setup (`--init`)
+
+With `--init`, the script sends these commands at startup:
+
+```
+Ctrl-C        → exit converse mode, return to command prompt
+MONITOR ON    → enable packet monitoring
+MRPT ON       → show already-digipeated packets (essential for APRS)
+MCON ON       → also show connected-mode packets
+```
+
+Skip `--init` if your TNC is already configured for monitoring. The TNC must be in **normal terminal mode** (not KISS mode).
+
+#### Manual TNC configuration
+
+If you prefer to configure the TNC yourself before running the script, connect with any terminal emulator (e.g. PuTTY on COM5, 9600 8N1) and issue:
+
+```
+MONITOR ON
+MRPT ON
+MCON ON
+```
+
+Then close the terminal and start `aprs_tnc.sh`.
+
+---
+
 ## Environment Variables
 
 | Variable | Used by | Purpose |
 |---|---|---|
 | `HAM_LOG` | logbook, lotw_upload | Path to TSV log file (default: `~/.ham_log.tsv`) |
-| `HAM_CALL` | logbook, lotw_upload | Your callsign (for ADIF `STATION_CALLSIGN`) |
+| `HAM_CALL` | logbook, lotw_upload, psk_reporter | Your callsign (for ADIF `STATION_CALLSIGN`; default callsign for PSK Reporter) |
 | `HAM_LOC` | lotw_upload | TQSL station location name |
 | `TQSL_BIN` | lotw_upload | Full path to `tqsl` binary if not in PATH |
 | `HAM_WEATHER_LOC` | ham.sh launcher | Default city for weather (e.g. `"Tifton, GA"`) |

@@ -74,8 +74,11 @@ while true; do
     printf "  %b7%b  %-20s %s%s%s\n" "$BOLD" "$RESET" "WSPR Spots"       "$GRAY" "propagation spots from wspr.live"  "$RESET"
     printf "  %b8%b  %-20s %s%s%s\n" "$BOLD" "$RESET" "Logbook"          "$GRAY" "local QSO logger"                  "$RESET"
     printf "  %b9%b  %-20s %s%s%s\n" "$BOLD" "$RESET" "Weather"          "$GRAY" "current conditions & 10-day forecast" "$RESET"
+    printf "  %ba%b  %-20s %s%s%s\n" "$BOLD" "$RESET" "SOTA Spots"       "$GRAY" "recent SOTA activator spots"          "$RESET"
+    printf "  %bb%b  %-20s %s%s%s\n" "$BOLD" "$RESET" "PSK Reporter"     "$GRAY" "who's hearing your callsign"          "$RESET"
+    printf "  %bc%b  %-20s %s%s%s\n" "$BOLD" "$RESET" "APRS TNC"         "$GRAY" "live APRS via Pakratt 232 serial TNC" "$RESET"
     echo "$SEP"
-    printf "  [1-9  q=quit]: "
+    printf "  [1-9  a-c  q=quit]: "
     read -r -n1 choice; echo
 
     case "$choice" in
@@ -92,6 +95,22 @@ while true; do
         7) run "wspr_spots.sh";;
         8) logbook_menu;;
         9) run "weather.sh" ${HAM_WEATHER_LOC:+"$HAM_WEATHER_LOC"};;
+        a|A) run "sota_spots.sh";;
+        b|B)
+            if [ -n "${HAM_CALL:-}" ]; then
+                run "psk_reporter.sh" --call "$HAM_CALL"
+            else
+                printf "\n  Callsign: "
+                read -e -r call
+                [ -n "$call" ] && run "psk_reporter.sh" --call "$call"
+            fi
+            ;;
+        c|C)
+            printf "\n  Serial port [/dev/ttyS0]: "
+            read -e -r tnc_port
+            tnc_port="${tnc_port:-/dev/ttyS0}"
+            run "aprs_tnc.sh" --port "$tnc_port"
+            ;;
         q|Q) clear; exit 0;;
     esac
 done

@@ -156,6 +156,20 @@ done < <(printf '%s' "$json_flat" | grep -oP '\{[^}]+\}')
 
 > `grep -oP '\{[^}]+\}'` works as long as field values don't contain `}` — true for all ham API responses seen so far.
 
+### XML attributes — `grep -oP` line-by-line
+
+When XML has attributes on each element (e.g. PSK Reporter), process line by line — no need to flatten first.
+
+```bash
+while IFS= read -r line; do
+    [[ "$line" != *"elementName"* ]] && continue
+    field=$(printf '%s' "$line" | grep -oP 'attrName="\K[^"]+')
+    num=$(printf '%s' "$line"   | grep -oP 'numAttr="\K[0-9]+')
+    [ -z "$field" ] && continue
+    rows+=("${field}	${num}")
+done <<< "$xml"
+```
+
 ### Reading rows back out
 
 ```bash
@@ -268,6 +282,9 @@ get_band() {
 | `weather.sh` | Open-Meteo JSON | 1800s loop | `--units F\|C`, `--lat/--lon`, `HAM_WEATHER_LOC` |
 | `logbook.sh` | local TSV (~/.ham_log.tsv) | one-shot | `--add`, `--search CALL`, `--stats`, `--tail N`, `--export-adif [FILE]` |
 | `lotw_upload.sh` | local TSV → TQSL → LoTW | one-shot | uploads new QSOs only; `--all` re-uploads everything; `--dry-run` to preview; `--set-watermark` after bulk import |
+| `sota_spots.sh` | api2.sota.org.uk JSON | 300s loop | `--mode`, `--band` filters; `--limit N` (default 50); freq in MHz |
+| `psk_reporter.sh` | retrieve.pskreporter.info XML | 300s loop | `--call CALL` (or `$HAM_CALL`); `--mode`, `--band` filters; shows who heard you |
+| `aprs_tnc.sh` | serial port (Pakratt 232 TNC) | streaming | `--port`, `--baud N`; `--init` sends MONITOR/MRPT/MCON ON; parses AEA two-line and single-line AX.25 formats |
 
 ### Environment variables
 
