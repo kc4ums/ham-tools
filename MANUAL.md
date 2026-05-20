@@ -13,7 +13,7 @@ No installs beyond `curl` or `wget` — everything runs with standard shell tool
 bash ham.sh
 ```
 
-Select a tool by number (1–9) or letter (a–c). Press **Ctrl+C** to stop a running tool and return to the menu.
+Select a tool by number (1–9) or letter (a–d). Press **Ctrl+C** to stop a running tool and return to the menu.
 
 ### Run a tool directly
 
@@ -529,6 +529,87 @@ MCON ON
 ```
 
 Then close the terminal and start `aprs_tnc.sh`.
+
+---
+
+### 14. TS-480 CAT Control — `ts480.sh`
+
+Live status display and CAT control for the Kenwood TS-480HX (also works with TS-480SAT).
+Polls the rig via serial CAT every 3 seconds. One-shot control flags exit immediately after sending.
+*(Menu key: **d**)*
+
+```bash
+bash ts480.sh --port /dev/ttyS4           # COM5 on Windows
+bash ts480.sh --port COM5                 # Windows style auto-converted
+bash ts480.sh --port COM5 --baud 4800     # if you changed Menu 60
+
+# One-shot control — sends command and exits
+bash ts480.sh --port COM5 --set-freq 14250       # kHz → 14.250 MHz
+bash ts480.sh --port COM5 --set-freq 14.250      # MHz (same result)
+bash ts480.sh --port COM5 --set-mode CW
+bash ts480.sh --port COM5 --set-power 75         # 75% → ~150W on HX
+bash ts480.sh --port COM5 --tune                 # start antenna tuner cycle
+```
+
+**Live status display shows:**
+- VFO A: frequency, mode, S-meter reading
+- VFO B: frequency
+- Power level (percentage and approximate watts)
+- Attenuator setting (Off / 6 dB / 12 dB / 18 dB)
+- Preamp (On/Off)
+- Split (On/Off)
+
+**Flags:**
+
+| Flag | Description |
+|---|---|
+| `--port PORT` | Serial port device (default: `/dev/ttyS0`) |
+| `--baud N` | Baud rate (default: 9600; must match TS-480 Menu 60) |
+| `--interval N` | Status refresh interval in seconds (default: 3) |
+| `--once` | Poll once and exit |
+| `--set-freq FREQ` | Set VFO A: pass kHz (`14250`) or MHz (`14.250`) |
+| `--set-mode MODE` | Set mode: `LSB` `USB` `CW` `CW-R` `AM` `FM` `FSK` `FSK-R` |
+| `--set-power N` | Set power 0–100 (percent of max; 100 = 200W on HX) |
+| `--tune` | Start one antenna tuner cycle |
+| `--no-color` | Plain text output |
+| `--help` | Show usage |
+
+**S-meter color coding:** S9/S9+ = red, S7–S8 = yellow, S5–S6 = green, S0–S4 = gray
+
+**Mode color coding:** CW/CW-R = green, LSB/USB = yellow, FSK/FSK-R = cyan
+
+#### Serial port setup
+
+The TS-480 CAT port is the 9-pin DE-9 connector on the rear panel. Settings:
+- **8N1** — 8 data bits, no parity, 1 stop bit
+- **No hardware flow control** — the TS-480 does not use RTS/CTS
+- **Baud rate** — set in TS-480 **Menu 60** (default 9600); must match `--baud`
+
+Connect via a USB-to-serial adapter (the TS-480 uses a DE-9 RS-232 port). To find the COM port in Windows, open Device Manager → Ports.
+
+#### TS-480SAT vs TS-480HX power scaling
+
+The `MAX_WATTS` constant at the top of `ts480.sh` controls watt display:
+
+```bash
+MAX_WATTS=200   # TS-480HX (200W HF)
+# MAX_WATTS=100 # TS-480SAT (100W HF)
+```
+
+The CAT `PC` command always uses 0–100 regardless of model; this constant only affects the watt estimate shown in the display.
+
+#### Common band/frequency reference
+
+| Band | CW (kHz) | SSB (kHz) | FT8 (kHz) |
+|---|---|---|---|
+| 160m | 1800 | 1840 | 1840 |
+| 80m | 3560 | 3900 | 3573 |
+| 40m | 7030 | 7200 | 7074 |
+| 20m | 14030 | 14250 | 14074 |
+| 17m | 18080 | 18130 | 18100 |
+| 15m | 21030 | 21300 | 21074 |
+| 10m | 28030 | 28400 | 28074 |
+| 6m  | 50090 | 50150 | 50313 |
 
 ---
 

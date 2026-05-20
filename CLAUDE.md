@@ -285,6 +285,7 @@ get_band() {
 | `sota_spots.sh` | api2.sota.org.uk JSON | 300s loop | `--mode`, `--band` filters; `--limit N` (default 50); freq in MHz |
 | `psk_reporter.sh` | retrieve.pskreporter.info XML | 300s loop | `--call CALL` (or `$HAM_CALL`); `--mode`, `--band` filters; shows who heard you |
 | `aprs_tnc.sh` | serial port (Pakratt 232 TNC) | streaming | `--port`, `--baud N`; `--init` sends MONITOR/MRPT/MCON ON; parses AEA two-line and single-line AX.25 formats |
+| `ts480.sh` | serial port (Kenwood TS-480HX CAT) | 3s loop | `--port`, `--baud N`; `--set-freq`, `--set-mode`, `--set-power`, `--tune`; MAX_WATTS=200 at top for HX vs SAT |
 
 ### Environment variables
 

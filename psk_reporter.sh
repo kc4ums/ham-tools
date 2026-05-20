@@ -17,6 +17,7 @@ show_help() {
   --call CALL   Callsign to look up (required if $HAM_CALL not set)
   --mode MODE   Filter by mode: CW FT8 FT4 SSB JS8
   --band BAND   Filter by band: 160m 80m 40m 30m 20m 17m 15m 12m 10m 6m
+  --sort FIELD  Sort results: call  snr  band  time  (default: newest first)
   --interval N  Refresh every N seconds (default: 300)
   --once        Fetch once and exit
   --no-color    Plain text output
@@ -30,6 +31,7 @@ EOF
 callsign="${HAM_CALL:-}"
 filter_mode=""
 filter_band=""
+sort_by=""
 no_color=0
 interval=300
 once=0
@@ -38,11 +40,12 @@ for arg in "$@"; do [[ "$arg" == "--no-color" ]] && no_color=1; done
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --call)     callsign="${2^^}";   shift 2;;
+        --call)     callsign="${2^^}";    shift 2;;
         --mode)     filter_mode="${2^^}"; shift 2;;
-        --band)     filter_band="$2";    shift 2;;
-        --interval) interval="$2";       shift 2;;
-        --once)     once=1;              shift;;
+        --band)     filter_band="$2";     shift 2;;
+        --sort)     sort_by="${2,,}";     shift 2;;
+        --interval) interval="$2";        shift 2;;
+        --once)     once=1;               shift;;
         --no-color) shift;;
         *)          shift;;
     esac
@@ -144,6 +147,22 @@ while true; do
         rows+=("${receiver}	${locator}	${freq_khz}	${band}	${mode}	${snr}	${dxcc}	${time}")
     done <<< "$xml"
 
+    # Sort rows if requested
+    # Tab-separated fields: receiver locator freq_khz band mode snr dxcc time
+    #                       1        2       3        4    5    6   7    8
+    if [ -n "$sort_by" ] && [ ${#rows[@]} -gt 0 ]; then
+        case "$sort_by" in
+            call) sort_flags=(-t$'\t' -k1,1);;           # alphabetical by callsign
+            snr)  sort_flags=(-t$'\t' -k6,6rn);;         # highest SNR first
+            band) sort_flags=(-t$'\t' -k3,3n);;          # lowest freq first (160m→6m)
+            time) sort_flags=(-t$'\t' -k8,8r);;          # most recent first
+            *)    sort_flags=();;
+        esac
+        if [ ${#sort_flags[@]} -gt 0 ]; then
+            mapfile -t rows < <(printf '%s\n' "${rows[@]}" | sort "${sort_flags[@]}")
+        fi
+    fi
+
     count=${#rows[@]}
 
     # Display
@@ -154,6 +173,7 @@ while true; do
     printf "  %d reception report(s)" "$count"
     [ -n "$filter_mode" ] && printf "  mode=%s" "$filter_mode"
     [ -n "$filter_band" ] && printf "  band=%s" "$filter_band"
+    [ -n "$sort_by" ]     && printf "  sort=%s" "$sort_by"
     echo
     echo "$SEP"
     printf "%b  %-12s %-10s %-10s %-5s %-8s %-5s %-4s %s%b\n" \

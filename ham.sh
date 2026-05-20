@@ -77,8 +77,9 @@ while true; do
     printf "  %ba%b  %-20s %s%s%s\n" "$BOLD" "$RESET" "SOTA Spots"       "$GRAY" "recent SOTA activator spots"          "$RESET"
     printf "  %bb%b  %-20s %s%s%s\n" "$BOLD" "$RESET" "PSK Reporter"     "$GRAY" "who's hearing your callsign"          "$RESET"
     printf "  %bc%b  %-20s %s%s%s\n" "$BOLD" "$RESET" "APRS TNC"         "$GRAY" "live APRS via Pakratt 232 serial TNC" "$RESET"
+    printf "  %bd%b  %-20s %s%s%s\n" "$BOLD" "$RESET" "TS-480 CAT"       "$GRAY" "Kenwood TS-480HX rig control"         "$RESET"
     echo "$SEP"
-    printf "  [1-9  a-c  q=quit]: "
+    printf "  [1-9  a-d  q=quit]: "
     read -r -n1 choice; echo
 
     case "$choice" in
@@ -110,6 +111,12 @@ while true; do
             read -e -r tnc_port
             tnc_port="${tnc_port:-/dev/ttyS0}"
             run "aprs_tnc.sh" --port "$tnc_port"
+            ;;
+        d|D)
+            printf "\n  Serial port [/dev/ttyS0]: "
+            read -e -r rig_port
+            rig_port="${rig_port:-/dev/ttyS0}"
+            run "ts480.sh" --port "$rig_port"
             ;;
         q|Q) clear; exit 0;;
     esac
