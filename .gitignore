@@ -1,3 +1,6 @@
+# Credentials and local config
+.env
+
 # Log and export files
 *.tsv
 *.adi

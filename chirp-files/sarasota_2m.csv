@@ -1,0 +1,8 @@
+Location,Name,Frequency,Duplex,Offset,Tone,rToneFreq,cToneFreq,DtcsCode,DtcsPolarity,Mode,TStep,Skip,Comment,URCALL,RPT1CALL,RPT2CALL,DVCODE
+0,N4SER,145.130000,-,0.600000,Tone,100.0,88.5,023,NN,FM,5.00,,"Venice, Laurel Rd/I-75 N4SER [FM]",,,,
+1,AA4FB,145.250000,-,0.600000,Tone,136.5,88.5,023,NN,FM,5.00,,"Englewood, WENG Radio Sta Tower AA4FB [Fusion,WIRES-X]",,,,
+2,N4SER,146.730000,-,0.600000,Tone,100.0,88.5,023,NN,FM,5.00,,"Sarasota, Comcast Tower N4SER [FM,AllStar,EchoLink]",,,,
+3,W4AC,146.805000,-,0.600000,Tone,100.0,88.5,023,NN,FM,5.00,,"Englewood W4AC [FM,EchoLink]",,,,
+4,W4IE,146.910000,-,0.600000,Tone,100.0,88.5,023,NN,FM,5.00,,"Sarasota W4IE [FM,AllStar]",,,,
+5,W4AC,147.120000,+,0.600000,Tone,136.5,88.5,023,NN,FM,5.00,,North Port W4AC [FM] OFF-AIR,,,,
+6,N4SER,147.390000,+,0.600000,Tone,100.0,88.5,023,NN,FM,5.00,,Sarasota N4SER [FM],,,,

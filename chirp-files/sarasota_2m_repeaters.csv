@@ -1,0 +1,8 @@
+Location,Name,Frequency,Duplex,Offset,Tone,rToneFreq,cToneFreq,DtcsCode,DtcsPolarity,Mode,TStep,Skip,Comment,URCALL,RPT1CALL,RPT2CALL,DVCODE
+0,14513,145.130000,-,0.600000,Tone,100.0,88.5,023,NN,FM,5.00,,Venice N4SER [FM],,,,
+1,14525,145.250000,-,0.600000,Tone,136.5,88.5,023,NN,FM,5.00,,Englewood AA4FB [Fusion],,,,
+2,14673,146.730000,-,0.600000,Tone,100.0,88.5,023,NN,FM,5.00,,"Sarasota N4SER [FM,AllStar]",,,,
+3,146805,146.805000,-,0.600000,Tone,100.0,88.5,023,NN,FM,5.00,,"Englewood W4AC [FM,EchoLink]",,,,
+4,14691,146.910000,-,0.600000,Tone,100.0,88.5,023,NN,FM,5.00,,"Sarasota W4IE [FM,AllStar]",,,,
+5,14712,147.120000,+,0.600000,Tone,136.5,88.5,023,NN,FM,5.00,,North Port W4AC [FM] OFF-AIR,,,,
+6,14739,147.390000,+,0.600000,Tone,100.0,88.5,023,NN,FM,5.00,,Sarasota N4SER [FM],,,,
