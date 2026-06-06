@@ -286,6 +286,8 @@ get_band() {
 | `psk_reporter.sh` | retrieve.pskreporter.info XML | 300s loop | `--call CALL` (or `$HAM_CALL`); `--mode`, `--band` filters; shows who heard you |
 | `aprs_tnc.sh` | serial port (Pakratt 232 TNC) | streaming | `--port`, `--baud N`; `--init` sends MONITOR/MRPT/MCON ON; parses AEA two-line and single-line AX.25 formats |
 | `ts480.sh` | serial port (Kenwood TS-480HX CAT) | 3s loop | `--port`, `--baud N`; `--set-freq`, `--set-mode`, `--set-power`, `--tune`; MAX_WATTS=200 at top for HX vs SAT |
+| `sat_passes.sh` | n2yo.com JSON API | 3600s loop | requires `N2YO_KEY`; `--sat NAME` or `--norad N`; `HAM_LAT`/`HAM_LON` or `--lat`/`--lon`; `--days`, `--min-el`; `--list` shows catalog |
+| `ft8_map.sh` | PSKReporter XML | 3600s loop | unique TX stations per band bar chart; `--mode FT8\|FT4`; single broad-range query buckets all bands client-side |
 
 ### Environment variables
 
@@ -296,6 +298,9 @@ get_band() {
 | `HAM_LOC` | `lotw_upload.sh` | TQSL station location name |
 | `TQSL_BIN` | `lotw_upload.sh` | Path to `tqsl` binary if not in PATH |
 | `HAM_WEATHER_LOC` | `ham.sh` (launcher) | City name passed to `weather.sh` from the menu |
+| `HAM_LAT` | `sat_passes.sh` | Latitude in decimal degrees (e.g. `31.45`) |
+| `HAM_LON` | `sat_passes.sh` | Longitude in decimal degrees (e.g. `-83.51`) |
+| `N2YO_KEY` | `sat_passes.sh` | n2yo.com API key (free registration) |
 | `QRZ_USER` | `qrz_lookup.sh` | QRZ username |
 | `QRZ_PASS` | `qrz_lookup.sh` | QRZ password |
 

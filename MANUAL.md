@@ -13,7 +13,7 @@ No installs beyond `curl` or `wget` — everything runs with standard shell tool
 bash ham.sh
 ```
 
-Select a tool by number (1–9) or letter (a–d). Press **Ctrl+C** to stop a running tool and return to the menu.
+Select a tool by number (1–9) or letter (a–f). Press **Ctrl+C** to stop a running tool and return to the menu.
 
 ### Run a tool directly
 
@@ -613,6 +613,109 @@ The CAT `PC` command always uses 0–100 regardless of model; this constant only
 
 ---
 
+### 15. Satellite Passes — `sat_passes.sh`
+
+Upcoming amateur satellite passes from n2yo.com.
+Auto-refreshes every hour. Press any key to refresh immediately.
+*(Menu key: **e**)*
+
+**One-time setup:**
+
+1. Register for a free API key at **https://www.n2yo.com/login/register/**
+2. Add to your `~/.bashrc`:
+
+```bash
+export N2YO_KEY=your_key_here
+export HAM_LAT=31.45       # your latitude
+export HAM_LON=-83.51      # your longitude
+```
+
+```bash
+bash sat_passes.sh --sat SO-50
+bash sat_passes.sh --sat ISS --days 3
+bash sat_passes.sh --sat AO-91 --min-el 20
+bash sat_passes.sh --norad 25544              # ISS by NORAD ID
+bash sat_passes.sh --list                     # show built-in catalog
+bash sat_passes.sh --sat SO-50 --once
+```
+
+**Output columns:** #, Start (day + local time), Start Az, Max El, Max Az, End time, End Az, Duration
+
+**Built-in satellites:**
+
+| Name | NORAD | Uplink | Downlink | Mode |
+|---|---|---|---|---|
+| ISS | 25544 | — | 145.800 | APRS / voice |
+| SO-50 | 27607 | 145.850 | 436.795 | FM |
+| AO-91 | 43017 | 435.250 | 145.960 | FM |
+| AO-92 | 43137 | 435.350 | 145.880 | FM |
+| AO-73 | 39444 | 435.170 | 145.950 | Linear |
+| PO-101 | 43678 | 435.525 | 145.900 | FM |
+
+Any satellite can be used with `--norad N` (look up NORAD IDs at celestrak.org or n2yo.com).
+
+**Flags:**
+
+| Flag | Description |
+|---|---|
+| `--sat NAME` | Built-in satellite name (see table above) |
+| `--norad N` | Any NORAD catalog ID |
+| `--lat LAT` | Latitude in decimal degrees (or `HAM_LAT`) |
+| `--lon LON` | Longitude in decimal degrees (or `HAM_LON`) |
+| `--alt M` | Altitude in meters (default: 0) |
+| `--days N` | Look-ahead window in days (default: 2, max: 10) |
+| `--min-el N` | Minimum elevation to show (default: 10°) |
+| `--key KEY` | n2yo API key (or `N2YO_KEY`) |
+| `--list` | Show built-in satellite catalog and exit |
+| `--interval N` | Refresh every N seconds (default: 3600) |
+| `--once` | Fetch once and exit |
+| `--no-color` | Plain text output |
+| `--help` | Show usage |
+
+**Max elevation color coding:** ≥45° = green (excellent), 20–44° = yellow (good), <20° = gray (low pass)
+
+**Tip:** A "countdown" line at the bottom shows time until the next upcoming pass. For FM satellites, passes below 20° are usually too low to work reliably — use `--min-el 20` to filter them out.
+
+---
+
+### 16. FT8 Activity Map — `ft8_map.sh`
+
+Shows how many unique stations are transmitting on FT8 (or FT4) per band,
+as a scaled bar chart. Useful for a quick "which bands are open?" view.
+Data comes from PSKReporter reception reports. No API key required.
+Auto-refreshes every hour. First load takes ~45 seconds (4s delay between
+the 10 band queries to stay within PSKReporter rate limits).
+*(Menu key: **f**)*
+
+```bash
+bash ft8_map.sh
+bash ft8_map.sh --mode FT4
+bash ft8_map.sh --once
+```
+
+**Output:** One row per band with a 30-character bar chart scaled to the
+most active band, plus a spot count. The busiest band is marked `← peak`.
+
+**Bar color coding (relative to peak band):**
+- Bold green ≥70% of peak — very active
+- Green 30–69% — active
+- Yellow 10–29% — some activity
+- Gray <10% — minimal / closed
+
+**Flags:**
+
+| Flag | Description |
+|---|---|
+| `--mode MODE` | `FT8` (default) or `FT4` |
+| `--interval N` | Refresh every N seconds (default: 3600) |
+| `--once` | Fetch once and exit |
+| `--no-color` | Plain text output |
+| `--help` | Show usage |
+
+**Note:** PSKReporter rate-limits aggressive queries. If you see "rate limited" for all bands, wait a few minutes and retry. Normal hourly use will not hit the limit.
+
+---
+
 ## Environment Variables
 
 | Variable | Used by | Purpose |
@@ -622,6 +725,9 @@ The CAT `PC` command always uses 0–100 regardless of model; this constant only
 | `HAM_LOC` | lotw_upload | TQSL station location name |
 | `TQSL_BIN` | lotw_upload | Full path to `tqsl` binary if not in PATH |
 | `HAM_WEATHER_LOC` | ham.sh launcher | Default city for weather (e.g. `"Tifton, GA"`) |
+| `HAM_LAT` | sat_passes | Your latitude in decimal degrees (e.g. `31.45`) |
+| `HAM_LON` | sat_passes | Your longitude in decimal degrees (e.g. `-83.51`) |
+| `N2YO_KEY` | sat_passes | n2yo.com API key (free at n2yo.com/login/register) |
 | `QRZ_USER` | qrz_lookup | QRZ username |
 | `QRZ_PASS` | qrz_lookup | QRZ password |
 
