@@ -173,6 +173,8 @@ Filter to target band, deduplicate on (freq, callsign), sort by frequency ascend
 Location,Name,Frequency,Duplex,Offset,Tone,rToneFreq,cToneFreq,DtcsCode,DtcsPolarity,Mode,TStep,Skip,Comment,URCALL,RPT1CALL,RPT2CALL,DVCODE
 ```
 
+### 4A — Repeater rows
+
 - **Location**: sequential integer from 0
 - **Name**: callsign truncated to 8 chars (e.g. `W4PVW`, `KM4EYX`)
 - **Frequency**: 6 decimal places (`145.120000`)
@@ -188,6 +190,34 @@ Location,Name,Frequency,Duplex,Offset,Tone,rToneFreq,cToneFreq,DtcsCode,DtcsPola
 - **Skip**: empty
 - **Comment**: `<city> <callsign> [<modes>]` + ` OFF-AIR` if off air
 - **URCALL/RPT1CALL/RPT2CALL/DVCODE**: empty
+
+### 4B — NOAA Weather Radio channels
+
+After all repeater rows, always append the 7 standard NOAA Weather Radio channels.
+Channel numbers continue from where repeaters left off.
+
+| Name | Frequency  |
+|------|------------|
+| WX1  | 162.400000 |
+| WX2  | 162.425000 |
+| WX3  | 162.450000 |
+| WX4  | 162.475000 |
+| WX5  | 162.500000 |
+| WX6  | 162.525000 |
+| WX7  | 162.550000 |
+
+WX channel CSV values:
+- **Duplex**: `''` (receive only — no offset)
+- **Offset**: `0.000000`
+- **Tone**: `''`
+- **rToneFreq**: `88.5`
+- **cToneFreq**: `88.5`
+- **DtcsCode**: `023`
+- **DtcsPolarity**: `NN`
+- **Mode**: `FM`
+- **TStep**: `5.00`
+- **Skip**: empty
+- **Comment**: `NOAA Weather Radio`
 
 Write with Python's `csv` module.
 
@@ -211,3 +241,4 @@ Wrote 17 repeaters to C:\...\tifton_50mi_2m.csv
 ```
 
 Flag OFF-AIR repeaters in Notes. If 0 results, suggest increasing radius or checking adjacent counties.
+Always show the 7 WX channels in the summary table after the repeaters, labeled `WX1`–`WX7`.
