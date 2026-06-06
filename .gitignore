@@ -9,5 +9,6 @@
 # ADIF imports folder
 imports/
 
-# Claude Code local settings
-.claude/
+# Claude Code local settings (track commands/, ignore everything else)
+.claude/*
+!.claude/commands/
