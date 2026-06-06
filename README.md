@@ -88,7 +88,8 @@ The `/chirp-repeaters` Claude Code command generates CHIRP-compatible CSV files 
 ```
 
 - Without `--radius`: exact county or city search
-- With `--radius N`: geocodes the location and searches within N miles  
+- With `--radius N`: geocodes the location and searches within N miles
+- NOAA Weather Radio channels (WX1–WX7, 162.400–162.550 MHz) are always appended
 - Output goes to `chirp-files/` (or `CHIRP_OUTPUT_DIR`)
 
 Requires Claude Code. See `.claude/commands/chirp-repeaters.md` for the full spec.
