@@ -94,6 +94,27 @@ The `/chirp-repeaters` Claude Code command generates CHIRP-compatible CSV files 
 
 Requires Claude Code. See `.claude/commands/chirp-repeaters.md` for the full spec.
 
+The `/chirp-route-repeaters` command does the same thing but along a driving route between
+two points, ordered from the start to the destination.
+
+```
+/chirp-route-repeaters Tifton, GA to Atlanta, GA 2m
+/chirp-route-repeaters Sarasota, FL to Tampa, FL 70cm --corridor 15
+```
+
+- Geocodes both endpoints and fetches a driving route (OSRM)
+- Samples waypoints along the route and searches RepeaterBook within `--corridor N` miles
+  (default 10) of each
+- Repeaters are deduplicated and ordered by distance along the route, with the route mile
+  marker noted in each row's comment
+- NOAA Weather Radio channels are always appended
+- Output goes to `chirp-files/` (or `CHIRP_OUTPUT_DIR`)
+
+Requires Claude Code. See `.claude/commands/chirp-route-repeaters.md` for the full spec.
+
+Every CSV in `chirp-files/` also has a matching `.json` export with the same rows, for use
+outside CHIRP.
+
 ---
 
 ## Requirements
