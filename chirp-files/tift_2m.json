@@ -1,0 +1,22 @@
+[
+  {
+    "Location": "0",
+    "Name": "14512",
+    "Frequency": "145.120000",
+    "Duplex": "-",
+    "Offset": "0.600000",
+    "Tone": "None",
+    "rToneFreq": "88.5",
+    "cToneFreq": "88.5",
+    "DtcsCode": "023",
+    "DtcsPolarity": "NN",
+    "Mode": "FM",
+    "TStep": "5.00",
+    "Skip": "",
+    "Comment": "Tifton, Tiftnet Tower W4PVW [D-STAR]",
+    "URCALL": "",
+    "RPT1CALL": "",
+    "RPT2CALL": "",
+    "DVCODE": ""
+  }
+]
