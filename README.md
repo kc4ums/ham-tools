@@ -108,6 +108,7 @@ two points, ordered from the start to the destination.
 - Repeaters are deduplicated and ordered by distance along the route, with the route mile
   marker noted in each row's comment
 - NOAA Weather Radio channels are always appended
+- Three files are written per run: `.csv` (CHIRP), `.json` (JSON export), `.TM271` (RT-Systems binary)
 - Output goes to `chirp-files/` (or `CHIRP_OUTPUT_DIR`)
 
 Requires Claude Code. See `.claude/commands/chirp-route-repeaters.md` for the full spec.
