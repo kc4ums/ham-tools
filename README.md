@@ -115,6 +115,25 @@ Requires Claude Code. See `.claude/commands/chirp-route-repeaters.md` for the fu
 Every CSV in `chirp-files/` also has a matching `.json` export with the same rows, for use
 outside CHIRP.
 
+### RT-Systems TM-271 converter
+
+`chirp_to_tm271.py` converts any CHIRP CSV to a native RT-Systems **TM-271 binary** (`.TM271`)
+file that can be opened directly in RT-Systems programming software and written to the radio.
+
+```bash
+python chirp_to_tm271.py chirp-files/tifton_to_st_augustine_2m.csv
+python chirp_to_tm271.py chirp-files/tifton_50mi_2m.csv --verbose
+python chirp_to_tm271.py input.csv --template chirp-files/original.TM271 --out my_channels.TM271
+```
+
+- Channels must be in the 2m band (144–148 MHz) — out-of-band rows (e.g. NOAA WX) are skipped with a notice
+- Channel limit: 200 (TM-271 memory size); names truncated to 6 characters
+- `--template` — path to an existing `.TM271` file whose header and footer are reused
+  (default: `chirp-files/original.TM271`); determines the RT-Systems version signature
+- `--verbose` / `-v` prints a channel summary table
+- Binary format reverse-engineered from a real `original.TM271` backup:
+  - 200 × 295-byte channel records; frequencies as LE uint32 in Hz; CTCSS as Kenwood 1-indexed table
+
 ---
 
 ## Requirements
