@@ -19,7 +19,8 @@ Band defaults to `2m`. Supported bands: 10m, 6m, 2m, 1.25m, 70cm, 33cm, 23cm.
 ## Step 0 — Output directory
 
 Use PowerShell for all steps (Git Bash cannot reliably access `C:/` paths on this machine).
-Use `py` (not `python3`) — that is the Python launcher available on Windows here.
+Use `python` (not `py` or `python3`) — `py` is not installed on this machine.
+Set `$env:PYTHONIOENCODING='utf-8'` before running so the 🟢/🔴 status glyphs don't crash output.
 
 Read `C:\Projects\ham-tools\.env` if it exists and extract `CHIRP_OUTPUT_DIR`.
 Default: `C:\Projects\ham-tools\chirp-files`. Ensure the directory exists.
@@ -105,7 +106,7 @@ e.g. `tift_2m.csv`
 
 ---
 
-## Step 3 — Parse repeaters with Python (`py`)
+## Step 3 — Parse repeaters with Python (`python`)
 
 The two search modes return **different HTML structures**. Detect which by checking if the first
 repeater block's freq `<td>` uses `class="freq"` (exact search) or `class="text-nowrap"` with a
@@ -117,7 +118,9 @@ Columns within each `<tr>` block (split on `data-rpt-id="`):
 1. Checkbox td
 2. **Frequency td** (`class="text-nowrap"`) — contains `<a href="details.php?...">145.1200</a>`
 3. **Offset td** (`class="text-nowrap"`) — contains e.g. `-0.6 MHz` or `+0.6 MHz`
-4. **Tone td** — CTCSS value or empty
+4. **Tone td** — CTCSS value or empty. May be prefixed with a DMR color code or P25 NAC,
+   e.g. `CC 1 127.3` or `NAC 2645 127.3` — take only the decimal CTCSS value
+   (`\b(\d{2,3}\.\d)\b`, 60–260 Hz); never treat `1` or `2645` as a tone.
 5. **Callsign td** — plain callsign text
 6. **Location td** (`class="text-nowrap"`) — city + landmark
 7. State td — skip
@@ -165,6 +168,16 @@ mode_badges = re.findall(r'mode-badge[^>]*>([^<]+)<', modes_raw)
 
 Filter to target band, deduplicate on (freq, callsign), sort by frequency ascending.
 
+### FM-only filter
+
+**Exclude every repeater that lists any digital voice mode**, even mixed-mode ones that also list FM.
+Keep a repeater only if its modes contain `FM` (incl. `FM-N`) and do NOT match:
+```python
+re.search(r'DMR|D-?STAR|YSF|Fusion|WIRES|P-?25|NXDN|M17|DPMR|TETRA', modes, re.I)
+```
+AllStar, EchoLink and IRLP are internet links, not RF modes — they do not disqualify a repeater.
+Collect the excluded entries and list them at the end of the report.
+
 ---
 
 ## Step 4 — Build the CHIRP CSV
@@ -191,10 +204,34 @@ Location,Name,Frequency,Duplex,Offset,Tone,rToneFreq,cToneFreq,DtcsCode,DtcsPola
 - **Comment**: `<city> <callsign> [<modes>]` + ` OFF-AIR` if off air
 - **URCALL/RPT1CALL/RPT2CALL/DVCODE**: empty
 
-### 4B — NOAA Weather Radio channels
+### 4B — Simplex channels
 
-After all repeater rows, always append the 7 standard NOAA Weather Radio channels.
+After the repeater rows, always append the FM simplex channels for the target band.
 Channel numbers continue from where repeaters left off.
+
+| Band  | Simplex frequencies (MHz)                                                    | Calling |
+|-------|------------------------------------------------------------------------------|---------|
+| 2m    | 146.415–146.580 and 147.420–147.570, 15 kHz steps (23 channels)              | 146.520 |
+| 1.25m | 223.420–223.580, 20 kHz steps                                                | 223.500 |
+| 70cm  | 446.000–446.175, 25 kHz steps                                                | 446.000 |
+| 6m    | 52.525, 52.540                                                               | 52.525  |
+| 10m   | 29.600                                                                       | 29.600  |
+| 33cm  | 927.500                                                                      | 927.500 |
+| 23cm  | 1294.500                                                                     | 1294.500|
+
+Simplex CSV values:
+- **Name**: `CALL` for the calling frequency; otherwise `S` + frequency, truncated to 8 chars (`S146.415`)
+- **Duplex**: `''`; **Offset**: `0.000000`; **Tone**: `''`
+- **rToneFreq/cToneFreq**: `88.5`; **DtcsCode**: `023`; **DtcsPolarity**: `NN`
+- **Mode**: `FM`; **TStep**: `5.00`; **Skip**: empty
+- **Comment**: `National Simplex Calling` for the calling frequency, else `<band> FM Simplex`
+
+Round generated frequencies (e.g. `round(146.415 + 0.015*k, 3)`) to avoid float drift.
+
+### 4C — NOAA Weather Radio channels
+
+After the simplex rows, always append the 7 standard NOAA Weather Radio channels.
+Channel numbers continue from where simplex left off.
 
 | Name | Frequency  |
 |------|------------|
@@ -230,15 +267,21 @@ Save to `<CHIRP_OUTPUT_DIR>\<filename>`.
 For radius searches, print the geocoded center and radius in the header line.
 
 ```
-Wrote 17 repeaters to C:\...\tifton_50mi_2m.csv
+Wrote 44 FM repeaters + 23 simplex + 7 WX to C:\...\tifton_50mi_2m.csv
   Center: 31.4550, -83.5108  |  Radius: 50 miles
 
  Ch  Frequency   Offset  Tone   Callsign  Location            Notes
  --  ----------  ------  -----  --------  ------------------  --------------------
-  0  144.960000  +600    88.5   KJ4KLD    Albany              FM DSTAR
-  1  145.120000  -600    88.5   W4PVW     Tifton              FM DSTAR
+  0  145.130000  -600    100.0  WB4EN     Keystone Heights    FM
+  1  145.330000  -600    131.8  WX4BWK    Brunswick           FM EchoLink
+  ...
+ 44  146.415000                 S146.415                      2m FM Simplex
+  ...
+
+Excluded 18 digital/mixed-mode:
+  145.2900 N4GIH [FM DMR YSF]
   ...
 ```
 
 Flag OFF-AIR repeaters in Notes. If 0 results, suggest increasing radius or checking adjacent counties.
-Always show the 7 WX channels in the summary table after the repeaters, labeled `WX1`–`WX7`.
+Always show the simplex channels and the 7 WX channels (`WX1`–`WX7`) in the summary table after the repeaters.
