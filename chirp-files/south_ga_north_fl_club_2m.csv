@@ -1,0 +1,79 @@
+Channel Number,Receive Frequency,Transmit Frequency,Offset Frequency,Offset Direction,Offset Reverse,Operating Mode,Name,Tone Mode,CTCSS,Rx CTCSS,DCS,Skip,Step,Tx Step,Beat Shift,Comment
+0,146.52000,146.52000, ,Simplex,Off,FM,CALL,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,
+1,145.15000,144.55000,600 kHz,Minus,Off,FM,K4BAR,Tone,127.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Starke - Bradford County EOC FL
+2,146.73000,146.13000,600 kHz,Minus,Off,FM,K4DTV,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Valparaiso FL
+3,146.82000,146.22000,600 kHz,Minus,Off,FM,K4GNV,Tone,123.0 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Gainesville - Devils Millhopper GSP FL
+4,146.98500,146.38500,600 kHz,Minus,Off,FM,K4GNV,Tone,123.0 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Gainesville - Devils Millhopper GSP FL
+5,146.61000,146.01000,600 kHz,Minus,Off,FM,K4GSO,Tone,123.0 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Ocala FL
+6,146.97000,146.37000,600 kHz,Minus,Off,FM,K4PRY,Tone,123.0 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Perry FL
+7,145.35000,144.75000,600 kHz,Minus,Off,FM,K4PRY,Tone,123.0 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Perry FL
+8,146.74500,146.14500,600 kHz,Minus,Off,FM,K4PRY,Tone,94.8 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Hines FL
+9,147.03000,147.63000,600 kHz,Plus,Off,FM,K4TLH,Tone,94.8 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Tallahassee FL
+10,147.28500,147.88500,600 kHz,Plus,Off,FM,KA4EOC,Tone,94.8 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Tallahassee - State EOC FL OFF-AIR
+11,147.39000,147.99000,600 kHz,Plus,Off,FM,KB4ARS,Tone,127.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Jacksonville Beach FL
+12,147.19500,147.79500,600 kHz,Plus,Off,FM,KB4CC,Tone,127.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Woodbine - Public Safety Complex GA
+13,147.04500,147.64500,600 kHz,Plus,Off,FM,KE4ZRT,Tone,141.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Millwood - GPB Tower GA OFF-AIR
+14,147.10500,147.70500,600 kHz,Plus,Off,FM,KF4DG,Tone,100.0 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Pembroke - WVAN Tower GA
+15,146.92500,146.32500,600 kHz,Minus,Off,FM,KI4UWC,Tone,156.7 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Orange Park - Fleming Island FL
+16,147.22500,147.82500,600 kHz,Plus,Off,FM,KI4UWC,Tone,156.7 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Keystone Heights - County Roads Yard FL
+17,145.33000,144.73000,600 kHz,Minus,Off,FM,KJ4CLL,Tone,123.0 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Ocala - Marion Co Transfer Station FL
+18,147.22500,147.82500,600 kHz,Plus,Off,FM,KO4EOC,Tone,123.0 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Niceville - Duke Field AFB FL
+19,147.01500,147.61500,600 kHz,Plus,Off,FM,KX4EOC,Tone,127.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Ponte Vedra FL
+20,145.21000,144.61000,600 kHz,Minus,Off,FM,KX4EOC,Tone,127.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Saint Augustine - EOC FL
+21,145.37000,144.77000,600 kHz,Minus,Off,FM,N4TCA,Tone,141.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Blackshear - 911 Communications Tower GA
+22,145.27000,144.67000,600 kHz,Minus,Off,FM,N4TCA,Tone,141.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Waycross GA
+23,147.18000,147.78000,600 kHz,Plus,Off,FM,NF4CA,Tone,123.0 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Lake City FL
+24,145.49000,144.89000,600 kHz,Minus,Off,FM,NF4CQ,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Lake City FL
+25,147.28500,147.88500,600 kHz,Plus,Off,FM,NF4EC,Tone,123.0 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Spring Ridge FL
+26,146.46000,146.46000, ,Simplex,Off,FM,S146 4,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,
+27,146.49000,146.49000, ,Simplex,Off,FM,S146 4,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,
+28,146.43000,146.43000, ,Simplex,Off,FM,S146 4,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,
+29,146.47500,146.47500, ,Simplex,Off,FM,S146 4,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,
+30,146.41500,146.41500, ,Simplex,Off,FM,S146 4,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,
+31,146.44500,146.44500, ,Simplex,Off,FM,S146 4,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,
+32,146.50500,146.50500, ,Simplex,Off,FM,S146 5,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,
+33,146.58000,146.58000, ,Simplex,Off,FM,S146 5,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,
+34,146.55000,146.55000, ,Simplex,Off,FM,S146 5,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,
+35,146.53500,146.53500, ,Simplex,Off,FM,S146 5,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,
+36,146.56500,146.56500, ,Simplex,Off,FM,S146 5,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,
+37,147.46500,147.46500, ,Simplex,Off,FM,S147 4,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,
+38,147.45000,147.45000, ,Simplex,Off,FM,S147 4,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,
+39,147.43500,147.43500, ,Simplex,Off,FM,S147 4,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,
+40,147.48000,147.48000, ,Simplex,Off,FM,S147 4,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,
+41,147.49500,147.49500, ,Simplex,Off,FM,S147 4,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,
+42,147.42000,147.42000, ,Simplex,Off,FM,S147 4,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,
+43,147.51000,147.51000, ,Simplex,Off,FM,S147 5,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,
+44,147.55500,147.55500, ,Simplex,Off,FM,S147 5,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,
+45,147.52500,147.52500, ,Simplex,Off,FM,S147 5,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,
+46,147.54000,147.54000, ,Simplex,Off,FM,S147 5,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,
+47,147.57000,147.57000, ,Simplex,Off,FM,S147 5,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,
+48,146.67000,146.07000,600 kHz,Minus,Off,FM,W4BKD,Tone,123.0 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Marianna FL
+49,147.07500,147.67500,600 kHz,Plus,Off,FM,W4CLA,Tone,123.0 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Claxton GA
+50,147.39000,147.99000,600 kHz,Plus,Off,FM,W4DAK,Tone,123.0 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Chiefland FL
+51,146.91000,146.31000,600 kHz,Minus,Off,FM,W4DFU,Tone,123.0 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Gainesville FL
+52,146.74500,146.14500,600 kHz,Minus,Off,FM,W4ECA,Tone,97.4 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Guyton GA
+53,146.71500,146.11500,600 kHz,Minus,Off,FM,W4FPC,Tone,123.0 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Palm Coast - Advent Hospital FL
+54,147.07500,147.67500,600 kHz,Plus,Off,FM,W4FPC,Tone,123.0 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Palm Coast FL
+55,146.70000,146.10000,600 kHz,Minus,Off,FM,W4IZ,Tone,127.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Jacksonville FL
+56,146.97000,146.37000,600 kHz,Minus,Off,FM,W4LHS,Tone,123.0 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Bloomingdale - WJCL Tower GA
+57,146.73000,146.13000,600 kHz,Minus,Off,FM,W4MM,Tone,110.9 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Albany GA
+58,146.82000,146.22000,600 kHz,Minus,Off,FM,W4MM,Tone,110.9 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Acree - Radio Sta Tower GA
+59,147.36000,147.96000,600 kHz,Plus,Off,FM,W4MM,Tone,67.0 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Parrott - GA Public Broadcasting Twr GA OFF-AIR
+60,146.83500,146.23500,600 kHz,Minus,Off,FM,W4NAS,Tone,127.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Kingsland GA
+61,147.00000,146.40000,600 kHz,Minus,Off,FM,W4NAS,Tone,127.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Callahan FL
+62,147.12000,147.72000,600 kHz,Plus,Off,FM,W4NN,Tone,100.0 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Eglin AFB FL
+63,147.28500,147.88500,600 kHz,Plus,Off,FM,W4PVW,Tone,141.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Sumner - WOBB Tower GA
+64,146.76000,146.16000,600 kHz,Minus,Off,FM,W4RNG,Tone,127.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Jacksonville FL
+65,145.45000,144.85000,600 kHz,Minus,Off,FM,W4UC,Tone,100.0 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Pensacola - Fire Sta 16 FL
+66,145.37000,144.77000,600 kHz,Minus,Off,FM,W4UCJ,Tone,141.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Thomasville GA
+67,147.24000,147.84000,600 kHz,Plus,Off,FM,W4UCJ,Tone,141.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Boston GA
+68,147.19500,147.79500,600 kHz,Plus,Off,FM,W4UCJ,Tone,141.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Metcalfe GA
+69,147.06000,147.66000,600 kHz,Plus,Off,FM,W4UCJ,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Thomasville GA
+70,146.76000,146.16000,600 kHz,Minus,Off,FM,W4VLD,Tone,141.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Valdosta GA
+71,146.79000,146.19000,600 kHz,Minus,Off,FM,WD4KOW,Tone,141.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Moultrie GA
+72,146.95500,146.35500,600 kHz,Minus,Off,FM,WJ4EOC,Tone,127.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Jacksonville - Jacksonville Fire-Rescue Dept. FL
+73,145.23000,144.63000,600 kHz,Minus,Off,FM,WR4SG,Tone,141.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Valdosta GA
+74,145.31000,144.71000,600 kHz,Minus,Off,FM,WR4SG,Tone,141.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Nashville GA
+75,147.13500,147.73500,600 kHz,Plus,Off,FM,WR4SG,Tone,141.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Lake Park GA
+76,145.33000,144.73000,600 kHz,Minus,Off,FM,WX4BWK,Tone,131.8 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Brunswick - Sidney Lanier Bridge GA
+77,145.43000,144.83000,600 kHz,Minus,Off,FM,WX4JEF,Tone,94.8 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Monticello FL
