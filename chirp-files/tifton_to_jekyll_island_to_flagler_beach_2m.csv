@@ -1,0 +1,54 @@
+Channel Number,Receive Frequency,Transmit Frequency,Offset Frequency,Offset Direction,Offset Reverse,Operating Mode,Name,Tone Mode,CTCSS,Rx CTCSS,DCS,Skip,Step,Tx Step,Beat Shift,Comment
+0,145.35000,144.75000,600 kHz,Minus,Off,FM,N4OME,Tone,141.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Ashburn GA
+1,147.28500,147.88500,600 kHz,Plus,Off,FM,W4PVW,Tone,141.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Sumner - WOBB Tower GA
+2,147.16500,147.76500,600 kHz,Plus,Off,FM,W4JSF,Tone,141.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Douglas - WOKA Tower GA
+3,145.25000,144.65000,600 kHz,Minus,Off,FM,KM4EYX,Tone,141.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Nicholls GA
+4,147.30000,147.90000,600 kHz,Plus,Off,FM,KE4PMP,Tone,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Millwood GA
+5,147.04500,147.64500,600 kHz,Plus,Off,FM,KE4ZRT,Tone,141.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Millwood - GPB Tower GA OFF-AIR
+6,145.27000,144.67000,600 kHz,Minus,Off,FM,N4TCA,Tone,141.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Waycross GA
+7,145.37000,144.77000,600 kHz,Minus,Off,FM,N4TCA,Tone,141.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Blackshear - 911 Communications Tower GA
+8,145.33000,144.73000,600 kHz,Minus,Off,FM,WX4BWK,Tone,131.8 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Brunswick - Sidney Lanier Bridge GA
+9,147.19500,147.79500,600 kHz,Plus,Off,FM,KB4CC,Tone,127.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Woodbine - Public Safety Complex GA
+10,146.83500,146.23500,600 kHz,Minus,Off,FM,W4NAS,Tone,127.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Kingsland GA
+11,147.36000,147.96000,600 kHz,Plus,Off,FM,KC5LPA,Tone,127.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Fernandina Beach FL OFF-AIR
+12,147.00000,146.40000,600 kHz,Minus,Off,FM,W4NAS,Tone,127.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Callahan FL
+13,146.70000,146.10000,600 kHz,Minus,Off,FM,W4IZ,Tone,127.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Jacksonville FL
+14,146.95500,146.35500,600 kHz,Minus,Off,FM,WJ4EOC,Tone,127.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Jacksonville - Jacksonville Fire-Rescue Dept. FL
+15,147.13500,147.73500,600 kHz,Plus,Off,FM,W4EMN,Tone,127.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Jacksonville - Methodist Twin Towers FL
+16,146.76000,146.16000,600 kHz,Minus,Off,FM,W4RNG,Tone,127.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Jacksonville FL
+17,147.01500,147.61500,600 kHz,Plus,Off,FM,KX4EOC,Tone,127.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Ponte Vedra FL
+18,146.80500,146.20500,600 kHz,Minus,Off,FM,KK4BD,Tone,127.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Durbin FL
+19,145.17000,144.57000,600 kHz,Minus,Off,FM,AB4EY,Tone,107.2 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Saint Augustine FL
+20,145.21000,144.61000,600 kHz,Minus,Off,FM,KX4EOC,Tone,127.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Saint Augustine - EOC FL
+21,146.62500,146.02500,600 kHz,Minus,Off,FM,KF4MX,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Saint Augustine - Fish Island FL
+22,145.47000,144.87000,600 kHz,Minus,Off,FM,KG4IDD,Tone,123.0 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Palm Coast FL
+23,146.71500,146.11500,600 kHz,Minus,Off,FM,W4FPC,Tone,123.0 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Palm Coast - Advent Hospital FL
+24,147.07500,147.67500,600 kHz,Plus,Off,FM,W4FPC,Tone,123.0 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Palm Coast FL
+25,146.74500,146.14500,600 kHz,Minus,Off,FM,KD4QOF,Tone,123.0 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Espanola FL
+26,146.65500,146.05500,600 kHz,Minus,Off,FM,KI4RF,Tone,103.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Holly Hill FL
+27,146.86500,146.26500,600 kHz,Minus,Off,FM,N4GOA,Tone,127.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Ormond Beach FL
+28,147.27000,147.87000,600 kHz,Plus,Off,FM,N4GOA,Tone,127.3 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Ormond Beach FL
+29,147.37500,147.97500,600 kHz,Plus,Off,FM,N4ZKF,Tone,103.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,Daytona Beach - Old WESH2 tower in Holly Hill FL
+30,146.41500,146.41500, ,Simplex,Off,FM,146415,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,2m FM Simplex
+31,146.43000,146.43000, ,Simplex,Off,FM,146430,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,2m FM Simplex
+32,146.44500,146.44500, ,Simplex,Off,FM,146445,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,2m FM Simplex
+33,146.46000,146.46000, ,Simplex,Off,FM,146460,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,2m FM Simplex
+34,146.47500,146.47500, ,Simplex,Off,FM,146475,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,2m FM Simplex
+35,146.49000,146.49000, ,Simplex,Off,FM,146490,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,2m FM Simplex
+36,146.50500,146.50500, ,Simplex,Off,FM,146505,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,2m FM Simplex
+37,146.52000,146.52000, ,Simplex,Off,FM,CALL,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,National Simplex Calling
+38,146.53500,146.53500, ,Simplex,Off,FM,146535,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,2m FM Simplex
+39,146.55000,146.55000, ,Simplex,Off,FM,146550,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,2m FM Simplex
+40,146.56500,146.56500, ,Simplex,Off,FM,146565,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,2m FM Simplex
+41,146.58000,146.58000, ,Simplex,Off,FM,146580,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,2m FM Simplex
+42,147.42000,147.42000, ,Simplex,Off,FM,147420,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,2m FM Simplex
+43,147.43500,147.43500, ,Simplex,Off,FM,147435,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,2m FM Simplex
+44,147.45000,147.45000, ,Simplex,Off,FM,147450,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,2m FM Simplex
+45,147.46500,147.46500, ,Simplex,Off,FM,147465,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,2m FM Simplex
+46,147.48000,147.48000, ,Simplex,Off,FM,147480,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,2m FM Simplex
+47,147.49500,147.49500, ,Simplex,Off,FM,147495,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,2m FM Simplex
+48,147.51000,147.51000, ,Simplex,Off,FM,147510,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,2m FM Simplex
+49,147.52500,147.52500, ,Simplex,Off,FM,147525,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,2m FM Simplex
+50,147.54000,147.54000, ,Simplex,Off,FM,147540,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,2m FM Simplex
+51,147.55500,147.55500, ,Simplex,Off,FM,147555,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,2m FM Simplex
+52,147.57000,147.57000, ,Simplex,Off,FM,147570,None,88.5 Hz,88.5 Hz,023,Off,5 kHz,5 kHz,Off,2m FM Simplex
