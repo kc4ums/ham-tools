@@ -39,6 +39,21 @@ Re-run the installer to update the app or CHIRP. Your routes folder is never ove
 
 Use **Power off** before pulling power from the BeagleBone.
 
+## Console version
+
+No touchscreen, or logged in over SSH? Type:
+
+```bash
+route-loader
+```
+
+You get a numbered list of routes. Type a number to see its channels, then `y` to send it.
+`c` turns **Clear other channels** on or off, `r` rescans for routes (after plugging in a USB
+stick), and `q` quits. Ctrl+C while sending stops after the current channel.
+
+`route-loader --simulate` tries it with a pretend radio, and `--no-color` turns off colors.
+Running `route_loader.py` with no X display also falls back to the console menu.
+
 ## Routes
 
 Any CHIRP CSV or RT Systems TM-271 CSV export works. Channel numbers in the file become

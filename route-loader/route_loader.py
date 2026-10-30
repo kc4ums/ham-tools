@@ -10,6 +10,7 @@
 # Usage:
 #   route_loader.py                        touchscreen app (windowed)
 #   route_loader.py --fullscreen           touchscreen app (kiosk)
+#   route_loader.py --console              text menu for a terminal / SSH (default when there's no display)
 #   route_loader.py --list                 list routes found
 #   route_loader.py --check FILE           validate a route against the TM-271
 #   route_loader.py --upload FILE          write a route to the radio from the shell
@@ -17,6 +18,7 @@
 #   --routes DIR                           routes folder (default: $ROUTES_DIR or ~/routes)
 #   --keep-others                          don't erase radio channels the route doesn't use
 #   --simulate                             fake radio, for trying the app without one
+#   --no-color                             plain console output
 
 import argparse
 import csv
@@ -34,6 +36,10 @@ try:
     from chirp import chirp_common, directory, errors, import_logic
     from chirp.drivers import generic_csv
 except ImportError:
+    # Run with the system python: switch to install.sh's venv, which has CHIRP
+    VENV_PY = '/opt/route-loader/venv/bin/python'
+    if os.path.exists(VENV_PY) and sys.prefix != '/opt/route-loader/venv':
+        os.execv(VENV_PY, [VENV_PY, os.path.abspath(__file__)] + sys.argv[1:])
     sys.exit('CHIRP is not installed. Run install.sh, or: pip install '
              'https://github.com/kk7ds/chirp/archive/refs/heads/master.tar.gz')
 
@@ -365,15 +371,30 @@ def run_gui(args):
     body.columnconfigure(1, weight=9, uniform='c')
     body.rowconfigure(0, weight=1)
 
-    # route list (drag to scroll)
+    # route list: drag with a finger, scrollbar, or mouse wheel
     left = tk.Frame(body, bg=C['panel'], highlightthickness=1, highlightbackground=C['line'])
     left.grid(row=0, column=0, sticky='nsew', padx=(0, int(10 * S)))
-    canvas = tk.Canvas(left, bg=C['panel'], highlightthickness=0, bd=0)
-    canvas.pack(fill='both', expand=True)
+    style = ttk.Style(root)
+    style.theme_use('default')
+    style.configure('R.Vertical.TScrollbar', troughcolor=C['panel'], background=C['line'], bordercolor=C['panel'],
+                    arrowcolor=C['muted'], lightcolor=C['line'], darkcolor=C['line'], gripcount=0,
+                    width=int(22 * S), arrowsize=int(22 * S))
+    style.map('R.Vertical.TScrollbar', background=[('active', C['sel'])])
+    canvas = tk.Canvas(left, bg=C['panel'], highlightthickness=0, bd=0, yscrollincrement=1)
+    vbar = ttk.Scrollbar(left, orient='vertical', style='R.Vertical.TScrollbar', command=canvas.yview)
+    canvas.configure(yscrollcommand=vbar.set)
+    vbar.pack(side='right', fill='y')
+    canvas.pack(side='left', fill='both', expand=True)
     inner = tk.Frame(canvas, bg=C['panel'])
     win = canvas.create_window(0, 0, anchor='nw', window=inner)
-    canvas.bind('<Configure>', lambda e: canvas.itemconfigure(win, width=e.width))
-    inner.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox('all')))
+
+    def fit_scroll(e=None):
+        # never smaller than the view, so a short list can't be dragged off the top
+        h = max(inner.winfo_reqheight(), canvas.winfo_height())
+        canvas.configure(scrollregion=(0, 0, canvas.winfo_width(), h))
+
+    canvas.bind('<Configure>', lambda e: (canvas.itemconfigure(win, width=e.width), fit_scroll()))
+    inner.bind('<Configure>', fit_scroll)
     drag = dict(y=0, moved=False)
 
     def press(e):
@@ -385,6 +406,18 @@ def run_gui(args):
             drag['moved'] = True
         if drag['moved']:
             canvas.scan_dragto(0, e.y_root, gain=1)
+
+    def wheel(e):
+        if not str(e.widget).startswith(str(left)):     # only when the pointer is over the list
+            return
+        if e.num == 4 or e.delta > 0:
+            canvas.yview_scroll(-int(60 * S), 'units')
+        elif e.num == 5 or e.delta < 0:
+            canvas.yview_scroll(int(60 * S), 'units')
+
+    root.bind_all('<MouseWheel>', wheel)               # Windows / macOS
+    root.bind_all('<Button-4>', wheel)                 # X11 (Linux, WSLg)
+    root.bind_all('<Button-5>', wheel)
 
     # right: details
     right = tk.Frame(body, bg=C['card'], highlightthickness=1, highlightbackground=C['line'])
@@ -426,8 +459,6 @@ def run_gui(args):
     o_title.pack(pady=(int(50 * S), int(10 * S)))
     o_text = tk.Label(overlay, text='', font=F(14), fg=C['muted'], bg=C['bg'], wraplength=int(720 * S), justify='center')
     o_text.pack(pady=(0, int(14 * S)))
-    style = ttk.Style(root)
-    style.theme_use('default')
     style.configure('R.Horizontal.TProgressbar', troughcolor=C['line'], background=C['go'], thickness=int(26 * S),
                     bordercolor=C['bg'], lightcolor=C['go'], darkcolor=C['go'])
     o_bar = ttk.Progressbar(overlay, style='R.Horizontal.TProgressbar', length=int(620 * S), maximum=1)
@@ -618,6 +649,165 @@ def run_gui(args):
     pump()
     root.mainloop()
 
+# ── Console app ────────────────────────────────────────────────────────────────
+
+def run_console(args):
+    tty = sys.stdout.isatty()
+    if tty and not args.no_color:
+        GREEN, YELLOW, RED, GRAY, BOLD, RESET = '\033[92m', '\033[93m', '\033[91m', '\033[90m', '\033[1m', '\033[0m'
+    else:
+        GREEN = YELLOW = RED = GRAY = BOLD = RESET = ''
+    try:
+        '→…'.encode(sys.stdout.encoding or 'ascii')
+        txt = str
+    except UnicodeEncodeError:                  # plain Linux console without a UTF-8 locale
+        def txt(s):
+            return s.replace('→', '->').replace('…', '...')
+    SEP = '  ' + '-' * 66
+
+    def clear():
+        if tty:
+            os.system('cls' if os.name == 'nt' else 'clear')
+
+    def ask(prompt):
+        try:
+            return input(prompt).strip().lower()
+        except EOFError:
+            return 'q'
+
+    def pause():
+        ask('\n  Press Enter to go back ')
+
+    def port_line(port):
+        if args.simulate:
+            return '%sSimulated radio%s' % (YELLOW, RESET)
+        if port:
+            return '%sCable on %s%s' % (GREEN, port, RESET)
+        return '%sNo programming cable%s' % (RED, RESET)
+
+    def send(route, port, erase):
+        cancel, result = threading.Event(), {}
+
+        def progress(d, t, s):
+            fill = int(30 * d / max(t, 1))
+            sys.stdout.write('\r  [%s%s] %3d/%-3d %-26s' % ('#' * fill, '.' * (30 - fill), d, t, txt(s)[:26]))
+            sys.stdout.flush()
+
+        def work():
+            try:
+                result['res'] = upload(port, route.memories, erase, progress, cancel, args.simulate)
+            except Exception as e:
+                result['err'] = e
+
+        print('\n  Sending — Ctrl+C to stop')
+        th = threading.Thread(target=work, daemon=True)
+        th.start()
+        while th.is_alive():
+            try:
+                th.join(0.2)
+            except KeyboardInterrupt:
+                cancel.set()
+                print('\n  Stopping after this channel...')
+        print('\n')
+
+        if 'err' in result:
+            print('  %sCould not talk to the radio%s' % (BOLD + RED, RESET))
+            print('  %s' % result['err'])
+            print('  Check that the radio is on and the cable is in the radio\'s data/mic jack.')
+            return False
+        res = result['res']
+        title, clr = (('Stopped part way', YELLOW) if res['cancelled'] else
+                      ('Radio programmed', GREEN) if not res['failed'] else ('Finished with problems', RED))
+        print('  %s%s%s' % (BOLD + clr, title, RESET))
+        print('  %d channels written, %d already matched' % (res['written'], res['unchanged']))
+        if res['erased']:
+            print('  %d old channels cleared' % res['erased'])
+        for n, why in res['failed']:
+            print('  %sCh %d failed: %s%s' % (RED, n, why, RESET))
+        return not res['cancelled']
+
+    def show_route(route, erase):
+        clear()
+        port = args.port or find_port()
+        mems = route.memories
+        ok, problems = check_route(mems) if mems else ([], [])
+        reps = sum(1 for m in mems if m.duplex in ('+', '-'))
+        print()
+        print('  %s%s%s' % (BOLD, txt(route.title), RESET))
+        print('  %d channels, %d repeaters%s  |  %s' % (len(mems), reps, ', ' + route.band if route.band else '',
+                                                       os.path.basename(route.path)))
+        print(SEP)
+        print('  %s%3s  %-10s %-3s  %-6s  %-5s  %s%s' % (BOLD, 'Ch', 'Frequency', 'Off', 'Name', 'Tone', 'Comment', RESET))
+        print(SEP)
+        for m in mems:
+            tone = ('%.1f' % m.rtone) if m.tmode == 'Tone' else ''
+            print('  %3d  %-10s %-3s  %-6s  %-5s  %s%s%s' % (m.number, chirp_common.format_freq(m.freq)[:10],
+                  m.duplex or '', m.name[:6], tone, GRAY, txt(m.comment)[:32], RESET))
+        print(SEP)
+        if route.error:
+            print('  %sCould not read this file: %s%s' % (RED, route.error, RESET))
+        if route.skipped:
+            print('  %s%d rows in this file could not be read%s' % (RED, route.skipped, RESET))
+        for n, msg in problems:
+            print('  %s! %s%s' % (RED, msg, RESET))
+        print('  %s' % port_line(port))
+
+        if not ok:
+            pause()
+            return False
+        if not (port or args.simulate):
+            print('  Plug the cable into the BeagleBone and the radio, then pick the route again.')
+            pause()
+            return False
+        ans = ask('\n  Send %d channels to the radio%s? [y/N]: ' %
+                  (len(ok), ' and clear the rest' if erase else ''))
+        if ans not in ('y', 'yes'):
+            return False
+        sent = send(route, port, erase)
+        pause()
+        return sent
+
+    erase = not args.keep_others
+    routes = find_routes(args.routes)
+    last = ''
+    while True:
+        clear()
+        print()
+        print('  %sRoute Loader%s  Kenwood TM-271A' % (BOLD, RESET))
+        print('  %s  |  Clear other channels: %s' % (port_line(args.port or find_port()),
+                                                     'ON' if erase else 'OFF'))
+        if last:
+            print('  %sLast sent: %s%s' % (GRAY, last, RESET))
+        print(SEP)
+        if not routes:
+            print('  No routes found. Copy route .csv files to %s' % args.routes)
+            print('  or plug in a USB stick with a "routes" folder, then press r.')
+        else:
+            print('  %s%3s  %-50s %4s  %s%s' % (BOLD, '#', 'Route', 'Ch', 'Band', RESET))
+            print(SEP)
+            for i, r in enumerate(routes, 1):
+                flag = '  %s!%s' % (RED, RESET) if (r.error or r.skipped) else ''
+                print('  %3d  %-50s %4d  %s%s' % (i, txt(r.title)[:50], len(r.memories), r.band, flag))
+        print(SEP)
+        try:
+            choice = ask('  Route number, [c] clear on/off, [r] rescan, [q] quit: ')
+        except KeyboardInterrupt:
+            choice = 'q'
+        if choice in ('q', 'quit', 'exit'):
+            print()
+            break
+        if choice == 'c':
+            erase = not erase
+        elif choice == 'r':
+            routes = find_routes(args.routes)
+        elif choice.isdigit() and 1 <= int(choice) <= len(routes):
+            r = routes[int(choice) - 1]
+            try:
+                if show_route(r, erase):
+                    last = '%s  %s' % (txt(r.title), time.strftime('%H:%M'))
+            except KeyboardInterrupt:
+                pass
+
 # ── CLI ────────────────────────────────────────────────────────────────────────
 
 def main():
@@ -631,6 +821,8 @@ def main():
     ap.add_argument('--keep-others', action='store_true')
     ap.add_argument('--simulate', action='store_true')
     ap.add_argument('--debug', action='store_true')
+    ap.add_argument('--console', action='store_true')
+    ap.add_argument('--no-color', action='store_true')
     args = ap.parse_args()
     if args.debug:
         logging.getLogger().setLevel(logging.DEBUG)
@@ -661,7 +853,12 @@ def main():
             print('  ch %d: %s' % (n, why))
         sys.exit(1 if res['failed'] else 0)
 
-    run_gui(args)
+    # No X display (SSH, text console): fall back to the console menu
+    no_display = os.name != 'nt' and not (os.environ.get('DISPLAY') or os.environ.get('WAYLAND_DISPLAY'))
+    if args.console or (no_display and not args.fullscreen):
+        run_console(args)
+    else:
+        run_gui(args)
 
 
 if __name__ == '__main__':

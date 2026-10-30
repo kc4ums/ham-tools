@@ -62,6 +62,13 @@ exec $APP_DIR/venv/bin/python $APP_DIR/route_loader.py --fullscreen --routes "$r
 EOF
 chmod 755 "$APP_DIR/kiosk.sh"
 
+# Console version: type "route-loader" at a terminal or over SSH
+cat > /usr/local/bin/route-loader <<EOF
+#!/bin/sh
+exec $APP_DIR/venv/bin/python $APP_DIR/route_loader.py --console --routes "$routes_dir" "\$@"
+EOF
+chmod 755 /usr/local/bin/route-loader
+
 # ── Routes ─────────────────────────
 step "Routes folder: $routes_dir"
 mkdir -p "$routes_dir"
@@ -133,6 +140,7 @@ fi
 
 step "Done"
 echo "  Routes:   $routes_dir  (or a USB stick, root or a 'routes' folder)"
+echo "  Console:  route-loader   (text menu, works over SSH)"
 echo "  Logs:     journalctl -u route-loader -f"
 echo "  Test:     $APP_DIR/venv/bin/python $APP_DIR/route_loader.py --list --routes $routes_dir"
 echo "  Touch off? run 'DISPLAY=:0 xinput_calibrator' as $run_user"
