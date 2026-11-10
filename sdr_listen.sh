@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
-# SDR voice receiver — RTL-SDR via rtl_fm + aplay (built for Arduino UNO Q / any Linux)
+# SDR voice receiver — RTL-SDR via rtl_fm + aplay
+# Runs on BeagleBone Black, Arduino UNO Q, Raspberry Pi, or any Linux box.
 #
 # Exception to the no-installs rule: needs the distro's rtl-sdr and alsa-utils
-# packages (rtl_fm, aplay).  On the UNO Q (Debian):
+# packages (rtl_fm, aplay).  On Debian (BeagleBone / UNO Q):
 #     sudo apt install rtl-sdr alsa-utils
+#
+# BeagleBone Black notes:
+#   - Its single USB-A host port needs a POWERED hub for dongle + USB sound card.
+#   - ALSA card 0 is usually HDMI, so a USB sound card is card 1:
+#     export SDR_AUDIO=plughw:1,0   (in ~/.bashrc so the ham.sh menu uses it)
 
 show_help() {
     cat << 'EOF'
@@ -24,6 +30,7 @@ show_help() {
   --hf           Direct sampling for HF on RTL-SDR v3 (not needed on v4)
   --device N     RTL-SDR device index (default: 0)
   --audio DEV    ALSA output device for aplay (e.g. plughw:1,0); see aplay -L
+                 Default: $SDR_AUDIO if set, else the system default
   --no-color     Plain text output
   --help         Show this help
 
@@ -48,7 +55,7 @@ squelch=""
 ppm=0
 hf=0
 device=0
-audio=""
+audio="${SDR_AUDIO:-}"
 
 for arg in "$@"; do [[ "$arg" == "--no-color" ]] && no_color=1; done
 
