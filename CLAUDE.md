@@ -288,6 +288,7 @@ get_band() {
 | `ts480.sh` | serial port (Kenwood TS-480HX CAT) | 3s loop | `--port`, `--baud N`; `--set-freq`, `--set-mode`, `--set-power`, `--tune`; MAX_WATTS=200 at top for HX vs SAT |
 | `sat_passes.sh` | n2yo.com JSON API | 3600s loop | requires `N2YO_KEY`; `--sat NAME` or `--norad N`; `HAM_LAT`/`HAM_LON` or `--lat`/`--lon`; `--days`, `--min-el`; `--list` shows catalog |
 | `ft8_map.sh` | PSKReporter XML | 3600s loop | unique TX stations per band bar chart; `--mode FT8\|FT4`; single broad-range query buckets all bands client-side |
+| `sdr_listen.sh` | RTL-SDR dongle via `rtl_fm` → `aplay` | streaming | **Needs `rtl-sdr` + `alsa-utils` packages** (BeagleBone Black / Arduino UNO Q / any Linux). `--freq MHZ` (comma list = scan), presets `2m`/`noaa`/`air`/`marine`; `--mode fm\|wbfm\|am\|usb\|lsb`; `--gain`, `--squelch`, `--ppm`, `--hf` (v3 direct sampling), `--audio DEV` (or `$SDR_AUDIO`) |
 | `route-loader/route_loader.py` | route CSVs → TM-271A serial | touchscreen app | **Exception to bash-only rule:** Python + Tk + CHIRP's TM-271 driver, for a BeagleBone kiosk (`install.sh`). Reads CHIRP and RT Systems CSVs; `--console` text menu (`route-loader` command); `--list`, `--check`, `--upload`, `--simulate` |
 
 ### Environment variables
@@ -302,6 +303,7 @@ get_band() {
 | `HAM_LAT` | `sat_passes.sh` | Latitude in decimal degrees (e.g. `31.45`) |
 | `HAM_LON` | `sat_passes.sh` | Longitude in decimal degrees (e.g. `-83.51`) |
 | `N2YO_KEY` | `sat_passes.sh` | n2yo.com API key (free registration) |
+| `SDR_AUDIO` | `sdr_listen.sh` | ALSA output device (e.g. `plughw:1,0` for a USB sound card on a BeagleBone) |
 | `QRZ_USER` | `qrz_lookup.sh` | QRZ username |
 | `QRZ_PASS` | `qrz_lookup.sh` | QRZ password |
 

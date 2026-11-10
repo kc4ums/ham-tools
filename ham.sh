@@ -80,8 +80,10 @@ while true; do
     printf "  %bd%b  %-20s %s%s%s\n" "$BOLD" "$RESET" "TS-480 CAT"       "$GRAY" "Kenwood TS-480HX rig control"         "$RESET"
     printf "  %be%b  %-20s %s%s%s\n" "$BOLD" "$RESET" "Sat Passes"       "$GRAY" "upcoming amateur satellite passes"    "$RESET"
     printf "  %bf%b  %-20s %s%s%s\n" "$BOLD" "$RESET" "FT8 Activity Map" "$GRAY" "unique TX stations per band"          "$RESET"
+    printf "  %bg%b  %-20s %s%s%s
+" "$BOLD" "$RESET" "SDR Listen"       "$GRAY" "RTL-SDR voice receiver (FM/AM/SSB)"   "$RESET"
     echo "$SEP"
-    printf "  [1-9  a-f  q=quit]: "
+    printf "  [1-9  a-g  q=quit]: "
     read -r -n1 choice; echo
 
     case "$choice" in
@@ -133,6 +135,16 @@ while true; do
             fi
             ;;
         f|F) run "ft8_map.sh";;
+        g|G)
+            printf "
+  Frequency MHz, comma list, or preset (2m/noaa/air/marine) [146.52]: "
+            read -e -r sdr_freq
+            sdr_freq="${sdr_freq:-146.52}"
+            printf "  Mode fm/wbfm/am/usb/lsb [auto]: "
+            read -e -r sdr_mode
+            run "sdr_listen.sh" --freq "$sdr_freq" ${sdr_mode:+--mode "$sdr_mode"}
+            pause
+            ;;
         q|Q) clear; exit 0;;
     esac
 done
