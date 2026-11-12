@@ -10,6 +10,17 @@
 #   - Its single USB-A host port needs a POWERED hub for dongle + USB sound card.
 #   - ALSA card 0 is usually HDMI, so a USB sound card is card 1:
 #     export SDR_AUDIO=plughw:1,0   (in ~/.bashrc so the ham.sh menu uses it)
+#
+# Raspberry Pi 3B notes (Raspberry Pi OS Lite, console only):
+#   - sudo apt install rtl-sdr alsa-utils, then reboot or replug the dongle
+#     (the package blacklists the DVB-TV driver so rtl_fm can claim it).
+#   - Check the dongle: rtl_test -t   (should find "Realtek ... RTL2838")
+#   - Default audio is often HDMI.  aplay -l, find the "Headphones" (bcm2835)
+#     card, and if it's card 1:  export SDR_AUDIO=plughw:1,0  in ~/.bashrc
+#     (or raspi-config -> System Options -> Audio).  Volume: alsamixer.
+#   - Use a 5V 2.5A supply.  vcgencmd get_throttled should print 0x0 with the
+#     dongle running; anything else = under-voltage -> better PSU or a powered
+#     hub that doesn't backfeed (see elinux.org "RPi Powered USB Hubs").
 
 show_help() {
     cat << 'EOF'
